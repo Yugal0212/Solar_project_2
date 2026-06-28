@@ -1,3 +1,7 @@
+import { services } from './services'
+import { locations } from './locations'
+import { projectCategories } from './projects'
+
 export const company = {
   name: 'LGPSM Solar',
   tagline: "Harnessing Gujarat's Sunshine for a Cleaner Tomorrow",
@@ -12,12 +16,56 @@ export const company = {
   co2: 850,
 }
 
-export const navLinks = [
+// Primary navigation. Top-level items may carry `children`, which the Navbar
+// renders as a dropdown (desktop) / accordion (mobile) and the Footer surfaces
+// as link columns. Service / location / project children are derived from the
+// data layer so the menu stays in sync as those lists grow.
+export type NavChild = { label: string; path: string }
+export type NavLink = { label: string; path: string; children?: NavChild[] }
+
+export const navLinks: NavLink[] = [
   { label: 'Home', path: '/' },
   { label: 'About', path: '/about' },
-  { label: 'Products', path: '/products' },
-  { label: 'Why Solar', path: '/why-solar' },
-  { label: 'Services', path: '/services' },
+  {
+    label: 'Services',
+    path: '/services',
+    children: [
+      { label: 'All Services', path: '/services' },
+      ...services.map((s) => ({ label: s.name, path: `/services/${s.slug}` })),
+    ],
+  },
+  {
+    label: 'Locations',
+    path: '/locations',
+    children: [
+      { label: 'All Locations', path: '/locations' },
+      ...locations.map((l) => ({
+        label: l.isStateLevel ? 'Gujarat (Statewide)' : l.city,
+        path: `/locations/${l.slug}`,
+      })),
+    ],
+  },
+  {
+    label: 'Projects',
+    path: '/projects',
+    children: [
+      { label: 'All Projects', path: '/projects' },
+      ...projectCategories.map((c) => ({ label: c.label, path: `/projects/${c.slug}` })),
+    ],
+  },
+  {
+    label: 'Resources',
+    path: '/resources',
+    children: [
+      { label: 'Blog', path: '/blog' },
+      { label: 'FAQ', path: '/faq' },
+      { label: 'Solar Calculators', path: '/calculator' },
+      { label: 'Products', path: '/products' },
+      { label: 'Why Solar', path: '/why-solar' },
+      { label: 'Testimonials', path: '/testimonials' },
+      { label: 'Guides & Downloads', path: '/resources' },
+    ],
+  },
   { label: 'Contact', path: '/contact' },
 ]
 

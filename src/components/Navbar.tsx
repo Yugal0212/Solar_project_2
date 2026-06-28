@@ -4,15 +4,28 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Zap, Phone, Download } from 'lucide-react'
+import { Menu, X, Zap, Phone, Download, ChevronDown } from 'lucide-react'
 import { navLinks } from '../data/seed'
+import type { NavLink } from '../data/seed'
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [expandedMobile, setExpandedMobile] = useState<string | null>(null)
   const pathname = usePathname()
-  
+
   const isDarkText = isScrolled
+
+  // A top-level item is "active" if the current path matches it or any of its
+  // children (so dropdown parents stay highlighted on their sub-pages).
+  const isLinkActive = (link: NavLink): boolean => {
+    if (link.path === '/') return pathname === '/'
+    if (pathname === link.path || pathname.startsWith(`${link.path}/`)) return true
+    return (link.children ?? []).some(
+      (c) => pathname === c.path || pathname.startsWith(`${c.path}/`),
+    )
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,32 +80,84 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                href={link.path}
-                className={`relative px-4 py-2 text-base font-bold tracking-[0.2px] rounded-full transition-all duration-300 ${
-                  pathname === link.path
-                    ? isDarkText
-                      ? 'text-[#16A34A] bg-green-50'
-                      : 'text-[#22C55E] [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]'
-                    : isDarkText
-                      ? 'text-[#0B1F3A] hover:text-[#16A34A] hover:bg-slate-50'
-                      : 'text-[rgba(255,255,255,0.95)] hover:text-[#22C55E] [text-shadow:_0_2px_10px_rgba(0,0,0,0.3)]'
-                }`}
-              >
-                {link.label}
-                {pathname === link.path && (
-                  <motion.div
-                    layoutId="nav-indicator"
-                    className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
-                      isDarkText ? 'bg-[#16A34A]' : 'bg-[#22C55E] shadow-[0_0_5px_rgba(34,197,94,0.5)]'
-                    }`}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const active = isLinkActive(link)
+              const linkClasses = `relative flex items-center gap-1 px-4 py-2 text-base font-bold tracking-[0.2px] rounded-full transition-all duration-300 ${
+                active
+                  ? isDarkText
+                    ? 'text-[#16A34A] bg-green-50'
+                    : 'text-[#22C55E] [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]'
+                  : isDarkText
+                    ? 'text-[#0B1F3A] hover:text-[#16A34A] hover:bg-slate-50'
+                    : 'text-[rgba(255,255,255,0.95)] hover:text-[#22C55E] [text-shadow:_0_2px_10px_rgba(0,0,0,0.3)]'
+              }`
+              const indicator = active && (
+                <motion.div
+                  layoutId="nav-indicator"
+                  className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
+                    isDarkText ? 'bg-[#16A34A]' : 'bg-[#22C55E] shadow-[0_0_5px_rgba(34,197,94,0.5)]'
+                  }`}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                />
+              )
+
+              if (!link.children) {
+                return (
+                  <Link key={link.path} href={link.path} className={linkClasses}>
+                    {link.label}
+                    {indicator}
+                  </Link>
+                )
+              }
+
+              return (
+                <div
+                  key={link.path}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(link.label)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
+                  <Link href={link.path} className={linkClasses} aria-haspopup="true" aria-expanded={openDropdown === link.label}>
+                    {link.label}
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-200 ${openDropdown === link.label ? 'rotate-180' : ''}`}
+                    />
+                    {indicator}
+                  </Link>
+                  <AnimatePresence>
+                    {openDropdown === link.label && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-0 pt-3"
+                      >
+                        <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 py-2 min-w-[250px]">
+                          {link.children.map((child) => {
+                            const childActive = pathname === child.path || pathname.startsWith(`${child.path}/`)
+                            return (
+                              <Link
+                                key={child.path}
+                                href={child.path}
+                                className={`block px-5 py-2.5 text-sm font-semibold transition-colors ${
+                                  childActive
+                                    ? 'text-emerald-700 bg-emerald-50'
+                                    : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-50'
+                                }`}
+                              >
+                                {child.label}
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
+            })}
           </div>
 
           {/* Desktop Buttons */}
@@ -163,19 +228,64 @@ export default function Navbar() {
                   </button>
                 </div>
                 <nav className="space-y-1 mb-8">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.path}
-                      href={link.path}
-                      className={`block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
-                        pathname === link.path
-                          ? 'bg-emerald-50 text-emerald-700 font-semibold'
-                          : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                  {navLinks.map((link) => {
+                    if (!link.children) {
+                      return (
+                        <Link
+                          key={link.path}
+                          href={link.path}
+                          className={`block py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
+                            isLinkActive(link)
+                              ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                              : 'text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      )
+                    }
+
+                    const expanded = expandedMobile === link.label
+                    return (
+                      <div key={link.path}>
+                        <button
+                          onClick={() => setExpandedMobile(expanded ? null : link.label)}
+                          className={`w-full flex items-center justify-between py-3 px-4 rounded-xl text-sm font-medium transition-colors ${
+                            isLinkActive(link) ? 'text-emerald-700' : 'text-slate-700 hover:bg-slate-50'
+                          }`}
+                          aria-expanded={expanded}
+                        >
+                          {link.label}
+                          <ChevronDown size={16} className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {expanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden pl-3"
+                            >
+                              {link.children.map((child) => (
+                                <Link
+                                  key={child.path}
+                                  href={child.path}
+                                  className={`block py-2.5 px-4 rounded-lg text-sm transition-colors ${
+                                    pathname === child.path || pathname.startsWith(`${child.path}/`)
+                                      ? 'text-emerald-700 font-semibold bg-emerald-50'
+                                      : 'text-slate-600 hover:bg-slate-50 hover:text-emerald-700'
+                                  }`}
+                                >
+                                  {child.label}
+                                </Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )
+                  })}
                 </nav>
                 <div className="space-y-3 pt-6 border-t border-slate-100">
                   <a

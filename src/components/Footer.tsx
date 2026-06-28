@@ -2,7 +2,19 @@
 
 import Link from 'next/link'
 import { MapPin, Phone, Mail, Clock, Linkedin, Instagram, Twitter, Youtube, MessageCircle } from 'lucide-react'
-import { company, navLinks } from '../data/seed'
+import { company } from '../data/seed'
+import { services } from '../data/services'
+import { locations } from '../data/locations'
+
+const companyLinks = [
+  { label: 'About Us', path: '/about' },
+  { label: 'Projects', path: '/projects' },
+  { label: 'Blog', path: '/blog' },
+  { label: 'FAQ', path: '/faq' },
+  { label: 'Testimonials', path: '/testimonials' },
+  { label: 'Resources', path: '/resources' },
+  { label: 'Contact', path: '/contact' },
+]
 
 export default function Footer() {
   return (
@@ -39,11 +51,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2 - Quick Links */}
+          {/* Column 2 - Company */}
           <div>
-            <h4 className="text-xs font-bold tracking-widest uppercase text-accent-400 mb-4">Quick Links</h4>
+            <h4 className="text-xs font-bold tracking-widest uppercase text-accent-400 mb-4">Company</h4>
             <ul className="space-y-2">
-              {navLinks.map((link) => (
+              {companyLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     href={link.path}
@@ -59,13 +71,17 @@ export default function Footer() {
           {/* Column 3 - Our Services */}
           <div>
             <h4 className="text-xs font-bold tracking-widest uppercase text-accent-400 mb-4">Our Services</h4>
-            <ul className="space-y-2 text-sm text-primary-100/75">
-              <li>Residential Solar</li>
-              <li>Commercial Solar</li>
-              <li>Battery Storage</li>
-              <li>Solar Maintenance</li>
-              <li>Free Site Survey</li>
-              <li>Smart Monitoring</li>
+            <ul className="space-y-2">
+              {services.map((s) => (
+                <li key={s.slug}>
+                  <Link
+                    href={`/services/${s.slug}`}
+                    className="text-sm text-primary-100/75 hover:text-accent-400 hover:translate-x-1 inline-block transition-all"
+                  >
+                    {s.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -106,14 +122,32 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Service Locations */}
+        <div className="border-t border-white/10 mt-12 pt-8">
+          <h4 className="text-xs font-bold tracking-widest uppercase text-accent-400 mb-4">Solar Installation Locations</h4>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {locations.map((l) => (
+              <Link
+                key={l.slug}
+                href={`/locations/${l.slug}`}
+                className="text-sm text-primary-100/75 hover:text-accent-400 transition-colors"
+              >
+                {l.isStateLevel ? 'Gujarat (Statewide)' : `Solar in ${l.city}`}
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-primary-200/50">
             © 2025 LGPSM Solar Pvt. Ltd. All rights reserved.
           </p>
-          <p className="text-xs text-primary-200/50">
-            Made with ☀️ in Gujarat, India
-          </p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-primary-200/50">
+            <Link href="/privacy-policy" className="hover:text-accent-400 transition-colors">Privacy Policy</Link>
+            <Link href="/terms-and-conditions" className="hover:text-accent-400 transition-colors">Terms &amp; Conditions</Link>
+            <Link href="/sitemap" className="hover:text-accent-400 transition-colors">Sitemap</Link>
+          </div>
         </div>
       </div>
     </footer>

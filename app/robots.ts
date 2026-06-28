@@ -1,11 +1,14 @@
 import type { MetadataRoute } from 'next'
 
+// Required for `output: 'export'` so this metadata route is emitted statically.
+export const dynamic = 'force-static'
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://solar-project-lime-beta.vercel.app/sitemap.xml',
+    sitemap: 'https://parmayu.com/sitemap.xml',
   }
 }
