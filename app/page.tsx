@@ -43,25 +43,15 @@ export default function HomePage() {
       <section
         className="relative min-h-[85vh] flex flex-col overflow-hidden bg-slate-900"
       >
-        <motion.div 
+        {/* Desktop / tablet: full-bleed background image with overlay text */}
+        <motion.div
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="hero-bg-img absolute inset-0 z-0 origin-center overflow-hidden bg-slate-900"
+          className="hero-bg-img hidden md:block absolute inset-0 z-0 origin-center overflow-hidden bg-slate-900"
         >
-          <div className="hidden md:block absolute inset-[-5%]">
+          <div className="absolute inset-[-5%]">
             <Image
-              src="/hero-desktop-optimized.jpg"
-              alt=""
-              aria-hidden="true"
-              priority
-              fill
-              sizes="100vw"
-              className="object-cover object-center"
-            />
-          </div>
-          <div className="block md:hidden absolute inset-[-5%]">
-            <Image
-              src="/hero-mobile-optimized.jpg"
+              src="/hero-desktop-optimized.png"
               alt=""
               aria-hidden="true"
               priority
@@ -72,19 +62,43 @@ export default function HomePage() {
           </div>
         </motion.div>
 
+        {/* Mobile: full-bleed background image with the text overlaid on top */}
+        <div className="md:hidden absolute inset-0 z-0 overflow-hidden bg-slate-900">
+          <Image
+            src="/hero-mobile-optimized.png"
+            alt=""
+            aria-hidden="true"
+            priority
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
+
+        {/* Mobile readability scrim (dark at top behind navbar/headline and at the
+            bottom behind the CTAs, lighter in the middle to show the subject) */}
         <div
-          className="absolute inset-0 z-[1]"
+          className="md:hidden absolute inset-0 z-[1] pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(11,31,58,0.7) 0%, rgba(11,31,58,0.35) 35%, rgba(11,31,58,0.4) 65%, rgba(11,31,58,0.85) 100%)',
+          }}
+        />
+
+        {/* Overlay gradients are only needed behind the desktop overlay text */}
+        <div
+          className="hidden md:block absolute inset-0 z-[1]"
           style={{
             background: 'linear-gradient(90deg, rgba(11,31,58,0.85) 0%, rgba(11,31,58,0.6) 35%, rgba(11,31,58,0.2) 70%, transparent 100%)',
           }}
         />
 
         <div
-          className="absolute top-0 left-0 right-0 h-40 z-[1] pointer-events-none"
+          className="hidden md:block absolute top-0 left-0 right-0 h-40 z-[1] pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, rgba(11,31,58,0.35) 0%, transparent 100%)' }}
         />
 
-        <div className="relative z-10 flex-1 flex items-start px-6 lg:px-16 pt-32 lg:pt-36 pb-20 max-w-screen-2xl mx-auto w-full">
+        <div className="relative z-10 flex-1 flex items-start px-6 lg:px-16 pt-28 md:pt-32 lg:pt-36 pb-16 md:pb-20 max-w-screen-2xl mx-auto w-full">
           <div className="w-full flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
 
             <motion.div 
@@ -170,7 +184,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-[400px] mt-12 lg:mt-0 bg-black/40 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-white/10 shadow-2xl"
+              className="hidden md:grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-[400px] mt-12 lg:mt-0 bg-black/40 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-white/10 shadow-2xl"
             >
               {[
                 { title: 'Residential Solar', desc: 'Rooftop systems for homes', icon: <HomeIcon size={24} className="text-[#22C55E] mb-3" /> },
@@ -194,7 +208,7 @@ export default function HomePage() {
         </div>
 
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 cursor-pointer scroll-bounce-anim"
+          className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 cursor-pointer scroll-bounce-anim"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
           <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center p-1.5">

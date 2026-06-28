@@ -50,13 +50,17 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-700 ease-out flex items-center ${
-          isScrolled
-            ? 'bg-white/90 backdrop-blur-xl shadow-md h-[76px]'
-            : 'bg-transparent h-[96px]'
+        className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-500 ease-out px-4 sm:px-6 lg:px-8 ${
+          isScrolled ? 'pt-2 sm:pt-3' : 'pt-4 sm:pt-5'
         }`}
       >
-        <div className="w-full max-w-screen-2xl mx-auto px-6 lg:px-16 flex items-center justify-between">
+        <div
+          className={`max-w-[88rem] mx-auto flex items-center justify-between rounded-2xl border px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out ${
+            isScrolled
+              ? 'h-[66px] bg-white/40 backdrop-blur-2xl border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.12)]'
+              : 'h-[74px] bg-white/10 backdrop-blur-2xl border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)]'
+          }`}
+        >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${
@@ -82,7 +86,7 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => {
               const active = isLinkActive(link)
-              const linkClasses = `relative flex items-center gap-1 px-4 py-2 text-base font-bold tracking-[0.2px] rounded-full transition-all duration-300 ${
+              const linkClasses = `relative flex items-center gap-1 px-4 py-2 text-lg font-bold tracking-[0.2px] rounded-full transition-all duration-300 ${
                 active
                   ? isDarkText
                     ? 'text-[#16A34A] bg-green-50'
@@ -134,7 +138,7 @@ export default function Navbar() {
                         transition={{ duration: 0.15 }}
                         className="absolute top-full left-0 pt-3"
                       >
-                        <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 py-2 min-w-[250px]">
+                        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] border border-white/40 py-2 min-w-[250px] overflow-hidden">
                           {link.children.map((child) => {
                             const childActive = pathname === child.path || pathname.startsWith(`${child.path}/`)
                             return (
@@ -143,8 +147,8 @@ export default function Navbar() {
                                 href={child.path}
                                 className={`block px-5 py-2.5 text-sm font-semibold transition-colors ${
                                   childActive
-                                    ? 'text-emerald-700 bg-emerald-50'
-                                    : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-50'
+                                    ? 'text-emerald-700 bg-white/60'
+                                    : 'text-slate-700 hover:text-emerald-700 hover:bg-white/50'
                                 }`}
                               >
                                 {child.label}
