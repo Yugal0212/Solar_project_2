@@ -1,12 +1,22 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { CheckCircle2, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import SectionHeader from './SectionHeader'
+import { getProducts } from '@/src/lib/api'
 
-const products = [
+type ShowcaseProduct = {
+  id: string
+  title: string
+  description: string
+  highlights: string[]
+  image: string
+  path: string
+}
+
+const fallbackProducts: ShowcaseProduct[] = [
   {
     id: 'panels',
     title: 'High-Efficiency Solar Panels',
@@ -57,8 +67,124 @@ const products = [
   }
 ]
 
+function pickString(source: Record<string, unknown>, keys: string[], fallback = '') {
+  for (const key of keys) {
+    const value = source[key]
+    if (typeof value === 'string' && value.trim()) {
+      return value
+    }
+    if (typeof value === 'number') {
+      return String(value)
+    }
+  }
+
+  return fallback
+}
+
+function normalizeList(data: unknown): Record<string, unknown>[] {
+  if (Array.isArray(data)) {
+    return data.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+  }
+
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>
+    const possibleLists = [record.products, record.items, record.results, record.data]
+    const list = possibleLists.find(Array.isArray)
+
+    if (Array.isArray(list)) {
+      return list.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
+    }
+  }
+
+  return []
+}
+
+function normalizeHighlights(source: Record<string, unknown>) {
+  const raw = source.highlights ?? source.features ?? source.specs
+
+  if (Array.isArray(raw)) {
+    return raw.map(String).filter(Boolean).slice(0, 3)
+  }
+
+  if (raw && typeof raw === 'object') {
+    return Object.entries(raw)
+      .slice(0, 3)
+      .map(([key, value]) => `${key}: ${String(value)}`)
+  }
+
+  if (typeof raw === 'string') {
+    return raw
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .slice(0, 3)
+  }
+
+  return ['Premium solar hardware', 'Installation-ready system', 'Expert support included']
+}
+
+function normalizeProducts(data: unknown): ShowcaseProduct[] {
+  return normalizeList(data)
+    .slice(0, 4)
+    .map((product, index) => {
+      const id = pickString(product, ['id', 'slug'], `product-${index + 1}`)
+      const title = pickString(product, ['title', 'name', 'product_name'], fallbackProducts[index]?.title)
+      const description = pickString(
+        product,
+        ['description', 'short_description', 'summary'],
+        fallbackProducts[index]?.description
+      )
+      const image = pickString(
+        product,
+        ['image', 'image_url', 'photo', 'photo_url', 'thumbnail'],
+        fallbackProducts[index]?.image
+      )
+
+      return {
+        id,
+        title,
+        description,
+        highlights: normalizeHighlights(product),
+        image,
+        path: `/products${id ? `?product=${encodeURIComponent(id)}` : ''}`,
+      }
+    })
+}
+
 const HomeProductShowcase = memo(function HomeProductShowcase() {
   const router = useRouter()
+  const [products, setProducts] = useState<ShowcaseProduct[]>(fallbackProducts)
+  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    getProducts()
+      .then((data) => {
+        if (!isMounted) {
+          return
+        }
+
+        const normalized = normalizeProducts(data)
+        if (normalized.length > 0) {
+          setProducts(normalized)
+        }
+        setStatus('success')
+      })
+      .catch((err) => {
+        if (!isMounted) {
+          return
+        }
+
+        setError(err instanceof Error ? err.message : 'Unable to load products.')
+        setStatus('error')
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   return (
     <section className="py-32 bg-slate-50 relative">
@@ -70,6 +196,14 @@ const HomeProductShowcase = memo(function HomeProductShowcase() {
             title="Engineered For Complete Energy Independence"
             subtext="Discover our curated ecosystem of tier-1 solar technology, designed to work together seamlessly to eliminate your electricity bill and protect you from grid outages."
           />
+          {status === 'loading' && (
+            <p className="mt-5 text-sm font-medium text-slate-500">Loading latest products...</p>
+          )}
+          {status === 'error' && (
+            <p className="mt-5 text-sm font-medium text-red-600">
+              Showing saved products. Backend error: {error}
+            </p>
+          )}
         </div>
 
         {/* Stack Wrapper */}
