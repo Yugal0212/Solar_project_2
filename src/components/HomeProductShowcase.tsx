@@ -1,277 +1,200 @@
 'use client'
 
-import { memo, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { CheckCircle2, ChevronRight } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import SectionHeader from './SectionHeader'
-import { getProducts } from '@/src/lib/api'
+import { ArrowRight, Sun, Zap, Battery, Wrench } from 'lucide-react'
+import Link from 'next/link'
 
-type ShowcaseProduct = {
-  id: string
-  title: string
-  description: string
-  highlights: string[]
-  image: string
-  path: string
-}
-
-const fallbackProducts: ShowcaseProduct[] = [
+const products = [
   {
-    id: 'panels',
-    title: 'High-Efficiency Solar Panels',
-    description: 'Tier-1 Mono PERC and TOPCon modules engineered to deliver maximum yield even in extreme summer temperatures and low-light conditions. Built for decades of reliable power generation.',
-    highlights: [
-      '25-Year Linear Performance Warranty',
-      'Up to 22.5% Conversion Efficiency',
-      'Anti-PID & Salt-Mist Resistant'
-    ],
-    image: '/images/products/panel-1.jpg',
+    num: '01',
+    title: 'Solar Panels',
+    desc: 'High-efficiency Tier-1 modules engineered for maximum yield and decades of reliable power.',
+    icon: <Sun size={24} className="text-white" />,
+    img: '/hero-rooftop-ai.png',
+    type: 'image',
     path: '/products?category=panels'
   },
   {
-    id: 'inverters',
-    title: 'Smart Hybrid Inverters',
-    description: 'The intelligent brain of your solar plant. Our hybrid inverters automatically manage grid power, solar generation, and battery storage to ensure your home never goes dark.',
-    highlights: [
-      'Seamless 10ms UPS Backup Transition',
-      'IP65 Rated for Outdoor Install',
-      'Built-in Wi-Fi & App Monitoring'
-    ],
-    image: '/images/products/inv-1.jpg',
+    num: '02',
+    title: 'Inverters',
+    desc: 'Smart hybrid inverters that intelligently manage grid, solar, and battery power to ensure your home never goes dark.',
+    icon: <Zap size={24} className="text-white" />,
+    img: '',
+    type: 'solid',
     path: '/products?category=inverters'
   },
   {
-    id: 'batteries',
-    title: 'Lithium Battery Storage',
-    description: 'Store excess daytime solar energy to power your home through the night or during grid outages. Safe, deep-cycle, and completely maintenance-free.',
-    highlights: [
-      'LiFePO4 Chemistry for Max Safety',
-      '10+ Years Design Life & Warranty',
-      'Scalable from 5kWh to 100kWh'
-    ],
-    image: '/images/products/bat-1.jpg',
+    num: '03',
+    title: 'Battery Storage',
+    desc: 'Lithium-ion backup systems for uninterrupted power supply and maximum self-consumption.',
+    icon: <Battery size={24} className="text-white" />,
+    img: '/hero-desktop-optimized.jpg',
+    type: 'image',
     path: '/products?category=batteries'
   },
   {
-    id: 'monitoring',
-    title: '24/7 Smart Monitoring',
-    description: 'Take complete control of your energy ecosystem. Track real-time solar production, home consumption, and battery status directly from your smartphone, anywhere in the world.',
-    highlights: [
-      'Real-Time Production & Usage Data',
-      'Automated Fault & Maintenance Alerts',
-      'Detailed ROI & Financial Savings Reports'
-    ],
-    image: '/images/products/acc-2.jpg',
-    path: '/products'
+    num: '04',
+    title: 'Accessories',
+    desc: 'Premium mounting structures, AC/DC boxes, and cabling for a robust, safe, and long-lasting solar plant installation.',
+    icon: <Wrench size={24} className="text-white" />,
+    img: '',
+    type: 'solid',
+    path: '/products?category=accessories'
   }
 ]
 
-function pickString(source: Record<string, unknown>, keys: string[], fallback = '') {
-  for (const key of keys) {
-    const value = source[key]
-    if (typeof value === 'string' && value.trim()) {
-      return value
-    }
-    if (typeof value === 'number') {
-      return String(value)
-    }
-  }
+export default function HomeProductShowcase() {
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [isHovered, setIsHovered] = useState(false)
 
-  return fallback
-}
-
-function normalizeList(data: unknown): Record<string, unknown>[] {
-  if (Array.isArray(data)) {
-    return data.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
-  }
-
-  if (data && typeof data === 'object') {
-    const record = data as Record<string, unknown>
-    const possibleLists = [record.products, record.items, record.results, record.data]
-    const list = possibleLists.find(Array.isArray)
-
-    if (Array.isArray(list)) {
-      return list.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object')
-    }
-  }
-
-  return []
-}
-
-function normalizeHighlights(source: Record<string, unknown>) {
-  const raw = source.highlights ?? source.features ?? source.specs
-
-  if (Array.isArray(raw)) {
-    return raw.map(String).filter(Boolean).slice(0, 3)
-  }
-
-  if (raw && typeof raw === 'object') {
-    return Object.entries(raw)
-      .slice(0, 3)
-      .map(([key, value]) => `${key}: ${String(value)}`)
-  }
-
-  if (typeof raw === 'string') {
-    return raw
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean)
-      .slice(0, 3)
-  }
-
-  return ['Premium solar hardware', 'Installation-ready system', 'Expert support included']
-}
-
-function normalizeProducts(data: unknown): ShowcaseProduct[] {
-  return normalizeList(data)
-    .slice(0, 4)
-    .map((product, index) => {
-      const id = pickString(product, ['id', 'slug'], `product-${index + 1}`)
-      const title = pickString(product, ['title', 'name', 'product_name'], fallbackProducts[index]?.title)
-      const description = pickString(
-        product,
-        ['description', 'short_description', 'summary'],
-        fallbackProducts[index]?.description
-      )
-      const image = pickString(
-        product,
-        ['image', 'image_url', 'photo', 'photo_url', 'thumbnail'],
-        fallbackProducts[index]?.image
-      )
-
-      return {
-        id,
-        title,
-        description,
-        highlights: normalizeHighlights(product),
-        image,
-        path: `/products${id ? `?product=${encodeURIComponent(id)}` : ''}`,
-      }
-    })
-}
-
-const HomeProductShowcase = memo(function HomeProductShowcase() {
-  const router = useRouter()
-  const [products, setProducts] = useState<ShowcaseProduct[]>(fallbackProducts)
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
-  const [error, setError] = useState('')
-
+  // Auto-play interval for the expanding cards
   useEffect(() => {
-    let isMounted = true
+    if (isHovered) return
 
-    getProducts()
-      .then((data) => {
-        if (!isMounted) {
-          return
-        }
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % products.length)
+    }, 4500) // Change active card every 4.5 seconds
 
-        const normalized = normalizeProducts(data)
-        if (normalized.length > 0) {
-          setProducts(normalized)
-        }
-        setStatus('success')
-      })
-      .catch((err) => {
-        if (!isMounted) {
-          return
-        }
-
-        setError(err instanceof Error ? err.message : 'Unable to load products.')
-        setStatus('error')
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+    return () => clearInterval(interval)
+  }, [isHovered])
 
   return (
-    <section className="py-32 bg-slate-50 relative">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="py-24 bg-slate-50 overflow-hidden relative">
+      <div className="max-w-[90rem] mx-auto px-6 lg:px-12">
         
-        <div className="mb-24 text-center max-w-3xl mx-auto">
-          <SectionHeader
-            eyebrow="PREMIUM HARDWARE"
-            title="Engineered For Complete Energy Independence"
-            subtext="Discover our curated ecosystem of tier-1 solar technology, designed to work together seamlessly to eliminate your electricity bill and protect you from grid outages."
-          />
-          {status === 'loading' && (
-            <p className="mt-5 text-sm font-medium text-slate-500">Loading latest products...</p>
-          )}
-          {status === 'error' && (
-            <p className="mt-5 text-sm font-medium text-red-600">
-              Showing saved products. Backend error: {error}
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-12 lg:gap-24 mb-16 md:mb-20">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            viewport={{ once: true }}
+            className="flex-shrink-0"
+          >
+            <h2 className="font-heading font-black text-5xl lg:text-7xl leading-[1.1] tracking-tight">
+              <span className="text-[#DC2626]">Our</span> <span className="text-slate-900">Core</span>
+              <br />
+              <span className="text-[#DC2626]">Products</span>
+            </h2>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            viewport={{ once: true }}
+            className="max-w-2xl pt-2 lg:pt-4"
+          >
+            <h3 className="font-heading font-bold text-3xl lg:text-4xl text-slate-900 mb-6">
+              Comprehensive Hardware Ecosystem
+            </h3>
+            <p className="text-slate-600 text-lg leading-relaxed">
+              We source and integrate only the most reliable tier-1 components, ensuring your solar infrastructure delivers maximum efficiency and longevity for your home or business.
             </p>
-          )}
+          </motion.div>
         </div>
 
-        {/* Stack Wrapper */}
-        <div className="flex flex-col w-full gap-[15vh] pb-[10vh] relative z-10">
-          {products.map((product, i) => (
+        {/* Expanding Cards Carousel */}
+        <div 
+          className="flex flex-col lg:flex-row h-[800px] lg:h-[600px] gap-4 lg:gap-6 w-full"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={() => setIsHovered(true)}
+          onTouchEnd={() => setIsHovered(false)}
+        >
+          {products.map((product, idx) => {
+            const isActive = activeIndex === idx
+
+            return (
               <div
-                key={product.id}
-                className="sticky w-full origin-top h-[80vh] min-h-[600px] flex flex-col lg:flex-row shadow-[0_-15px_50px_rgba(0,0,0,0.06)] rounded-[40px] overflow-hidden bg-white border border-slate-100 will-change-transform"
-                style={{ 
-                  top: `calc(100px + ${i * 30}px)`, 
-                  zIndex: i + 10
+                key={idx}
+                onClick={() => setActiveIndex(idx)}
+                className={`relative rounded-[32px] overflow-hidden cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] flex-shrink-0 group hover:-translate-y-2 hover:shadow-2xl`}
+                style={{
+                  flex: isActive ? '4 1 0%' : '1 1 0%',
+                  minHeight: isActive ? '300px' : '100px',
                 }}
               >
-                {/* Content Left */}
-                <div className="w-full lg:w-[45%] p-10 lg:p-16 flex flex-col justify-center bg-white relative z-10 order-2 lg:order-1">
-                  <h3 className="font-heading font-extrabold text-3xl lg:text-4xl text-slate-900 mb-6 leading-tight">
-                    {product.title}
-                  </h3>
-                  
-                  <p className="text-slate-600 text-lg leading-relaxed mb-10">
-                    {product.description}
-                  </p>
-                  
-                  {/* Highlights */}
-                  <div className="flex flex-col gap-4 mb-12">
-                    {product.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-center gap-3">
-                        <CheckCircle2 size={20} className="text-emerald-500 shrink-0" />
-                        <span className="text-slate-800 font-semibold">{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Buttons */}
-                  <div className="flex flex-wrap items-center gap-4 mt-auto">
-                    <button 
-                      onClick={() => router.push(product.path)}
-                      className="bg-[#0B1F3A] hover:bg-slate-800 text-white font-bold px-8 py-4 rounded-full transition-colors flex items-center gap-2"
-                    >
-                      View Details <ChevronRight size={18} />
-                    </button>
-                    <button 
-                      onClick={() => router.push('/contact')}
-                      className="bg-transparent border border-emerald-600 text-emerald-600 hover:bg-emerald-50 font-bold px-8 py-4 rounded-full transition-colors"
-                    >
-                      Get Free Quote
-                    </button>
-                  </div>
+                {/* Background Container */}
+                <div className="absolute inset-0 bg-slate-900">
+                  {product.img && (
+                    <Image 
+                      src={product.img}
+                      alt={product.title}
+                      fill
+                      className={`object-cover transition-transform duration-[1.5s] ${isActive ? 'scale-105' : 'scale-100 opacity-50 grayscale-[50%]'}`}
+                    />
+                  )}
                 </div>
 
-                {/* Image Right */}
-                <div className="w-full lg:w-[55%] relative overflow-hidden group order-1 lg:order-2 h-64 lg:h-auto bg-slate-100">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-100/30 to-amber-100/30 mix-blend-multiply z-10" />
-                  <Image
-                    src={product.image} 
-                    alt={product.title}
-                    width={1024}
-                    height={1024}
-                    sizes="(min-width: 1024px) 55vw, 100vw"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-110 will-change-transform"
+                {/* Overlays */}
+                <div 
+                  className={`absolute inset-0 transition-opacity duration-700 
+                    ${isActive ? 'bg-gradient-to-t from-[#022C22]/95 via-[#064E3B]/60 to-transparent' : 'bg-slate-900/60 group-hover:bg-slate-900/40'}
+                  `} 
+                />
+
+                {/* The Notch (Top Right) */}
+                <div className="absolute top-0 right-0 w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-bl-[32px] flex items-center justify-center p-4 md:p-6 z-20 transition-all duration-700">
+                  <span className={`text-3xl md:text-4xl font-black leading-none tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-green-400 to-blue-600 bg-[length:200%_auto] animate-shimmer`}>
+                    {product.num}
+                  </span>
+                  
+                  {/* Left Curve */}
+                  <div 
+                    className="absolute top-0 -left-6 w-6 h-6" 
+                    style={{ background: 'radial-gradient(circle at bottom left, transparent 24px, #f8fafc 24.5px)' }}
+                  />
+                  
+                  {/* Bottom Curve */}
+                  <div 
+                    className="absolute -bottom-6 right-0 w-6 h-6" 
+                    style={{ background: 'radial-gradient(circle at bottom left, transparent 24px, #f8fafc 24.5px)' }}
                   />
                 </div>
+
+                {/* Inactive State: Vertical Title */}
+                <div 
+                  className={`absolute inset-0 flex flex-col items-center justify-center gap-4 lg:gap-8 transition-opacity duration-500
+                    ${isActive ? 'opacity-0 pointer-events-none' : 'opacity-100 delay-200'}
+                  `}
+                >
+                  <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-transform group-hover:scale-110">
+                     {React.cloneElement(product.icon as React.ReactElement<{ className?: string; size?: number }>, { className: 'text-white', size: 24 })}
+                  </div>
+                  <h4 className="text-white font-bold text-lg lg:text-2xl lg:[writing-mode:vertical-lr] lg:rotate-180 whitespace-nowrap tracking-wider">
+                    {product.title}
+                  </h4>
+                </div>
+
+                {/* Active State: Full Details */}
+                <div 
+                  className={`absolute inset-0 p-8 md:p-10 lg:p-12 flex flex-col justify-end transition-all duration-700
+                    ${isActive ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-12 pointer-events-none'}
+                  `}
+                >
+                  <div className="w-14 h-14 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-6 backdrop-blur-sm">
+                    {React.cloneElement(product.icon as React.ReactElement<{ className?: string; size?: number }>, { className: 'text-green-400', size: 28 })}
+                  </div>
+                  <h4 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">{product.title}</h4>
+                  <p className="text-green-50/90 text-base md:text-lg lg:text-xl leading-relaxed mb-8 max-w-xl line-clamp-3 md:line-clamp-none">
+                    {product.desc}
+                  </p>
+                  
+                  <Link 
+                    href={product.path}
+                    className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-green-600 text-white font-bold hover:bg-green-500 transition-colors w-max z-20 shadow-xl shadow-green-900/30 group/btn"
+                  >
+                    More Details <ArrowRight size={18} className="transition-transform group-hover/btn:translate-x-1" />
+                  </Link>
+                </div>
               </div>
-            ))}
+            )
+          })}
         </div>
       </div>
     </section>
   )
-})
-
-export default HomeProductShowcase
+}

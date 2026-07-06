@@ -55,7 +55,11 @@ export function getAllPosts(): PostMeta[] {
   return listMdxFiles()
     .map(readPostFile)
     .filter((p): p is Post => p !== null)
-    .map(({ content: _content, ...meta }) => meta)
+    .map((post) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { content, ...meta } = post
+      return meta
+    })
     .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
 }
 

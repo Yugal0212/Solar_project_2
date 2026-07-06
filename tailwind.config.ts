@@ -65,8 +65,13 @@ const config: Config = {
         'draw-line': 'drawLine 1.5s ease-out forwards',
         'marquee': 'marquee 30s linear infinite',
         'blob-shift': 'blobShift 10s ease-in-out infinite',
+        'shimmer': 'shimmer 2.5s linear infinite',
       },
       keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '200% center' },
+          '100%': { backgroundPosition: '-200% center' },
+        },
         floatSlow: {
           '0%,100%': { transform: 'translateY(0px) rotate(0deg)' },
           '33%': { transform: 'translateY(-18px) rotate(1deg)' },

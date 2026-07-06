@@ -21,6 +21,22 @@ body {
   width: 100%;
 }
 
+/* Premium Dark Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #0f172a; /* dark slate to match hero */
+}
+::-webkit-scrollbar-thumb {
+  background: #334155; 
+  border-radius: 6px;
+  border: 3px solid #0f172a; /* creates padding effect */
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569; 
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-plus-jakarta), sans-serif;
 }

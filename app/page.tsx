@@ -1,11 +1,12 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useRef, useEffect } from 'react'
 import Image from 'next/image'
 import {
-  Sun, Zap, IndianRupee, CheckCircle2, Award, ArrowRight, Phone,
-  Home as HomeIcon, Building2, Factory,
-  Wrench, Battery, Smartphone, PhoneCall, Ruler, HardHat,
+  Sun, Zap, CheckCircle2, Award, ArrowRight, Phone,
+  Factory,
+  PhoneCall, Ruler, HardHat,
   TrendingDown, Shield, Activity, Mail
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -13,22 +14,33 @@ import SectionHeader from '../src/components/SectionHeader'
 import HomeProductShowcase from '../src/components/HomeProductShowcase'
 import SolarCalculator from '../src/components/SolarCalculator'
 import TestimonialCarousel from '../src/components/TestimonialCarousel'
+import ServicesShowcase from '../src/components/ServicesShowcase'
 import { partners } from '../src/data/seed'
-import { fadeUp, fadeLeft, fadeRight, staggerContainer, staggerChild, PREMIUM_EASE, staggerTextContainer, textReveal } from '../src/lib/animations'
+import { fadeUp, fadeLeft, fadeRight, staggerContainer, staggerChild } from '../src/lib/animations'
 
 export default function HomePage() {
   const router = useRouter()
-  // Removed heavy GSAP lazy-loading for better performance.
-  // We now use Framer Motion directly on the SVG line below.
+  
+  const heroBgRef = useRef<HTMLDivElement>(null)
 
-  const services = [
-    { icon: <HomeIcon size={22} className="text-emerald-600" />, title: 'Residential Solar', desc: 'Custom rooftop solar systems for homes, apartments, and bungalows. Systems from 1kW to 10kW, designed around your actual consumption.', tag: '1kW - 10kW' },
-    { icon: <Building2 size={22} className="text-emerald-600" />, title: 'Commercial Solar', desc: 'Large-scale installations for offices, showrooms, and retail stores. Reduce your business electricity cost by 60-75% with guaranteed ROI.', tag: '10kW - 500kW' },
-    { icon: <Factory size={22} className="text-blue-600" />, title: 'Industrial Solar', desc: 'Megawatt-scale ground-mounted and rooftop systems for factories and warehouses. Leverage accelerated depreciation for maximum tax benefits.', tag: '500kW - 5MW' },
-    { icon: <Wrench size={22} className="text-emerald-600" />, title: 'Solar Maintenance (AMC)', desc: 'Annual maintenance contracts covering cleaning, health checks, inverter diagnostics, and 24-hour emergency support. Keep your system at 100%.', tag: 'From Rs 3,000/year' },
-    { icon: <Battery size={22} className="text-blue-600" />, title: 'Battery Storage', desc: 'Lithium-ion backup systems for uninterrupted power supply. Eliminate outage anxiety and maximise self-consumption with 5kWh - 20kWh storage.', tag: '5kWh - 20kWh' },
-    { icon: <Smartphone size={22} className="text-emerald-600" />, title: 'Smart Monitoring App', desc: 'Real-time energy generation, consumption, and savings data on your phone. Instant fault alerts, monthly reports, and lifetime remote support.', tag: 'iOS & Android' },
-  ]
+  useEffect(() => {
+    let ticking = false
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (heroBgRef.current) {
+            const scrolled = window.scrollY
+            const yPos = scrolled * 0.2
+            heroBgRef.current.style.transform = `translate3d(0, ${yPos}px, 0)`
+          }
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const processSteps = [
     { icon: <PhoneCall size={20} />, num: '01', title: 'Free Consultation', desc: 'Call us, WhatsApp us, or fill our form. Our expert calls you back within 2 hours to understand your requirements.' },
@@ -40,175 +52,160 @@ export default function HomePage() {
   return (
     <main>
       {/* ========== HERO SECTION ========== */}
-      <section
-        className="relative min-h-[85vh] flex flex-col overflow-hidden bg-slate-900"
-      >
-        {/* Desktop / tablet: full-bleed background image with overlay text */}
-        <motion.div
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          className="hero-bg-img hidden md:block absolute inset-0 z-0 origin-center overflow-hidden bg-slate-900"
+      <section className="relative min-h-[100vh] flex flex-col overflow-hidden bg-slate-900">
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes floatDust {
+            0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { transform: translateY(-120px) translateX(60px) scale(1.5); opacity: 0; }
+          }
+          .dust-particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: floatDust 15s infinite linear;
+            will-change: transform, opacity;
+            transform: translateZ(0);
+          }
+          @keyframes heroEnter {
+            0% { opacity: 0; transform: scale(1.03) translateZ(0); }
+            100% { opacity: 1; transform: scale(1) translateZ(0); }
+          }
+          @keyframes heroBgMotion {
+            0% { transform: scale(1) translateX(0) translateZ(0); }
+            50% { transform: scale(1.03) translateX(18px) translateZ(0); }
+            100% { transform: scale(1.06) translateX(0) translateZ(0); }
+          }
+          .hero-bg-anim {
+            animation: 
+              heroEnter 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.1s backwards,
+              heroBgMotion 30s ease-in-out 2.0s infinite alternate;
+            will-change: transform, opacity;
+          }
+        `}} />
+
+        {/* Cinematic Parallax Background */}
+        <div
+          ref={heroBgRef}
+          className="absolute inset-0 z-0 origin-center overflow-hidden bg-slate-900 will-change-transform contain-paint"
+          style={{ transform: 'translate3d(0, 0, 0)', backfaceVisibility: 'hidden' }}
         >
-          <div className="absolute inset-[-5%]">
+          <div className="absolute inset-[-10%] hero-bg-anim" style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}>
             <Image
-              src="/hero-desktop-optimized.png"
-              alt=""
-              aria-hidden="true"
+              src="/hero_new2.webp"
+              alt="Premium Solar Installation"
               priority
               fill
               sizes="100vw"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
               className="object-cover object-center"
             />
           </div>
-        </motion.div>
-
-        {/* Mobile: full-bleed background image with the text overlaid on top */}
-        <div className="md:hidden absolute inset-0 z-0 overflow-hidden bg-slate-900">
-          <Image
-            src="/hero-mobile-optimized.png"
-            alt=""
-            aria-hidden="true"
-            priority
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-          />
         </div>
 
-        {/* Mobile readability scrim (dark at top behind navbar/headline and at the
-            bottom behind the CTAs, lighter in the middle to show the subject) */}
-        <div
-          className="md:hidden absolute inset-0 z-[1] pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(to bottom, rgba(11,31,58,0.7) 0%, rgba(11,31,58,0.35) 35%, rgba(11,31,58,0.4) 65%, rgba(11,31,58,0.85) 100%)',
-          }}
-        />
+        {/* Readability Scrims */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-slate-900/80 via-slate-900/40 to-slate-900/90 pointer-events-none" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-slate-900/70 to-transparent pointer-events-none md:w-[70%]" />
+        
+        {/* Tiny Floating Dust Particles */}
+        <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden hidden md:block">
+          <div className="dust-particle w-1.5 h-1.5 left-[20%] top-[40%]" style={{ animationDelay: '0s' }} />
+          <div className="dust-particle w-1 h-1 left-[35%] top-[60%]" style={{ animationDelay: '3s', animationDuration: '18s' }} />
+          <div className="dust-particle w-2 h-2 left-[15%] top-[70%]" style={{ animationDelay: '7s', animationDuration: '22s' }} />
+          <div className="dust-particle w-1.5 h-1.5 left-[45%] top-[30%]" style={{ animationDelay: '11s' }} />
+        </div>
 
-        {/* Overlay gradients are only needed behind the desktop overlay text */}
-        <div
-          className="hidden md:block absolute inset-0 z-[1]"
-          style={{
-            background: 'linear-gradient(90deg, rgba(11,31,58,0.85) 0%, rgba(11,31,58,0.6) 35%, rgba(11,31,58,0.2) 70%, transparent 100%)',
-          }}
-        />
-
-        <div
-          className="hidden md:block absolute top-0 left-0 right-0 h-40 z-[1] pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, rgba(11,31,58,0.35) 0%, transparent 100%)' }}
-        />
-
-        <div className="relative z-10 flex-1 flex items-start px-6 lg:px-16 pt-28 md:pt-32 lg:pt-36 pb-16 md:pb-20 max-w-screen-2xl mx-auto w-full">
-          <div className="w-full flex flex-col lg:flex-row justify-between items-start lg:items-center gap-12">
-
-            <motion.div 
-              variants={staggerContainer}
-              initial="initial"
-              animate="whileInView"
-              className="max-w-[800px] w-full text-left"
+        {/* Hero Content */}
+        <div className="relative z-10 flex-1 flex items-center px-6 lg:px-12 pt-32 pb-20 max-w-[88rem] mx-auto w-full">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={{
+              initial: { opacity: 0 },
+              animate: { opacity: 1, transition: { delayChildren: 1.1, staggerChildren: 0.12 } }
+            }}
+            className="w-full flex flex-col justify-center max-w-[750px] text-left"
+          >
+            {/* Premium Glass Badge */}
+            <motion.div
+              variants={{
+                initial: { opacity: 0, y: 20 },
+                animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+              }}
+              className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-5 py-2.5 mb-8 will-change-transform w-max"
             >
-              <motion.div
-                variants={fadeUp}
-                className="inline-flex items-center gap-2 bg-[rgba(255,255,255,0.15)] backdrop-blur-md border border-[rgba(255,255,255,0.2)] rounded-full px-5 py-2 mb-8 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
-              >
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-white text-sm font-semibold tracking-wide">India&apos;s Trusted Solar Energy Partner</span>
-              </motion.div>
-
-              <motion.h1
-                variants={staggerTextContainer}
-                className="text-white font-black leading-[1.05] tracking-tight mb-5 max-w-[800px] [text-shadow:_0_4px_25px_rgba(0,0,0,0.35)]"
-                style={{ fontSize: 'clamp(2.8rem, 5vw, 4.5rem)' }}
-              >
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block">Powering</motion.span></div>{' '}
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block">Tomorrow</motion.span></div><br/>
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block">With</motion.span></div>{' '}
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block">Smart</motion.span></div>{' '}
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block text-[#22C55E]">Solar</motion.span></div><br/>
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block text-[#22C55E]">Energy</motion.span></div>{' '}
-                <div className="overflow-hidden inline-block pb-2"><motion.span variants={textReveal} className="inline-block">Solutions</motion.span></div>
-              </motion.h1>
-
-              <motion.p
-                variants={staggerTextContainer}
-                className="text-[rgba(255,255,255,0.95)] text-[22px] leading-[1.6] mb-10 max-w-[650px] font-medium [text-shadow:_0_2px_10px_rgba(0,0,0,0.25)] flex flex-wrap"
-              >
-                {['Helping', 'homeowners,', 'businesses,', 'and', 'industries', 'reduce', 'electricity', 'costs', 'and', 'embrace', 'a', 'cleaner,', 'more', 'sustainable', 'future', 'through', 'advanced', 'solar', 'technology.'].map((word, i) => (
-                  <div key={i} className="overflow-hidden inline-block mr-1.5 pb-1">
-                    <motion.span variants={textReveal} className="inline-block">{word}</motion.span>
-                  </div>
-                ))}
-              </motion.p>
-
-              <motion.div
-                variants={fadeUp}
-                className="flex flex-wrap items-center gap-4"
-              >
-                <button
-                  onClick={() => router.push('/contact')}
-                  className="flex items-center gap-2 bg-[#16A34A] hover:bg-green-700 text-white font-semibold rounded-full px-7 py-3.5 shadow-[0_8px_20px_rgba(22,163,74,0.4)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
-                >
-                  Get a Quote <ArrowRight size={18} />
-                </button>
-                <button
-                  onClick={() => router.push('/products')}
-                  className="bg-transparent backdrop-blur-[12px] border-2 border-[rgba(255,255,255,0.25)] text-white font-semibold rounded-full px-7 py-3.5 hover:bg-[rgba(255,255,255,0.15)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
-                >
-                  Explore Solutions
-                </button>
-              </motion.div>
-
-              <motion.div
-                variants={fadeUp}
-                className="mt-6"
-              >
-                <a href="#calculator" onClick={(e) => { e.preventDefault(); router.push('/why-solar') }} className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1 w-max transition-colors">
-                  Calculate My Solar Savings <ArrowRight size={14} />
-                </a>
-              </motion.div>
-
-              <motion.div
-                variants={fadeUp}
-                className="flex flex-wrap items-center gap-3 mt-10"
-              >
-                {['MNRE Approved', '25 Year Warranty', 'Expert Installation'].map((badge, i) => (
-                  <div key={i} className="flex items-center gap-1.5 bg-[rgba(255,255,255,0.08)] backdrop-blur-md border border-[rgba(255,255,255,0.15)] rounded-full px-3 py-1.5 text-white/90 text-[11px] font-medium tracking-wide">
-                    <CheckCircle2 size={12} className="text-[#22C55E]" />
-                    {badge}
-                  </div>
-                ))}
-              </motion.div>
+              <span className="text-xl leading-none">🌿</span>
+              <span className="text-white text-sm font-bold tracking-wide">India&apos;s Trusted Solar Startup</span>
             </motion.div>
 
+            {/* Headline */}
+            <h1 className="text-white font-[800] leading-[1.1] tracking-[-0.03em] mb-6 max-w-[700px]" style={{ fontSize: 'clamp(2.75rem, 5.5vw, 4.5rem)' }}>
+              <span className="block overflow-hidden pb-1 lg:pb-2"><motion.span variants={{ initial: { y: "100%", opacity: 0 }, animate: { y: "0%", opacity: 1, transition: { duration: 0.8, ease: "easeOut" } } }} className="block will-change-transform">Power Your Home &amp; Business</motion.span></span>
+              <span className="block overflow-hidden pb-1 lg:pb-2"><motion.span variants={{ initial: { y: "100%", opacity: 0 }, animate: { y: "0%", opacity: 1, transition: { duration: 0.8, ease: "easeOut" } } }} className="block will-change-transform">With Clean <span className="text-emerald-400">Solar Energy</span></motion.span></span>
+            </h1>
+
+            {/* Description */}
+            <motion.p
+              variants={{
+                initial: { opacity: 0, y: 20 },
+                animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+              }}
+              className="text-slate-200 text-lg leading-relaxed mb-10 max-w-[560px] font-medium will-change-transform"
+            >
+              Smart rooftop solar solutions designed for homes and businesses. Reduce electricity bills with reliable installations and expert guidance.
+            </motion.p>
+
+            {/* Buttons */}
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="hidden md:grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-[400px] mt-12 lg:mt-0 bg-black/40 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-white/10 shadow-2xl"
+              variants={{
+                initial: { opacity: 0, y: 20 },
+                animate: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, damping: 20 } }
+              }}
+              className="flex flex-wrap items-center gap-4 will-change-transform"
+            >
+              <button
+                onClick={() => router.push('/contact')}
+                className="group flex items-center justify-center gap-3 bg-emerald-500 text-white font-[700] rounded-full px-8 h-[56px] shadow-[0_4px_14px_rgba(16,185,129,0.2)] hover:shadow-[0_8px_24px_rgba(16,185,129,0.4),0_0_12px_rgba(16,185,129,0.3)] hover:-translate-y-1 transition-all duration-[180ms] text-[16px]"
+              >
+                Get a Quote <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-[180ms]" />
+              </button>
+              <button
+                onClick={() => router.push('/products')}
+                className="group flex items-center justify-center gap-2 bg-white/10 border border-white/20 text-white font-[700] rounded-full px-8 h-[56px] hover:bg-white/15 hover:border-white/40 hover:-translate-y-1 hover:shadow-[0_4px_20px_rgba(255,255,255,0.15),0_0_12px_rgba(255,255,255,0.1)] transition-all duration-[180ms] text-[16px]"
+              >
+                Explore Solutions
+              </button>
+            </motion.div>
+
+            {/* Trust Row */}
+            <motion.div
+              variants={{
+                initial: { opacity: 0 },
+                animate: { opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
+              }}
+              className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-14 text-[13px] md:text-[14px] text-white/90 font-medium max-w-[600px] will-change-transform"
             >
               {[
-                { title: 'Residential Solar', desc: 'Rooftop systems for homes', icon: <HomeIcon size={24} className="text-[#22C55E] mb-3" /> },
-                { title: 'Commercial Solar', desc: 'Large-scale business solutions', icon: <Building2 size={24} className="text-[#22C55E] mb-3" /> },
-                { title: 'Government Subsidy', desc: 'Up to 40% PM Surya Ghar benefits', icon: <IndianRupee size={24} className="text-amber-400 mb-3" />, special: true },
-                { title: 'Free Site Survey', desc: 'Expert consultation & 3D planning', icon: <Ruler size={24} className="text-[#22C55E] mb-3" /> },
-              ].map((card, i) => (
-                <div key={i} className={`bg-[rgba(11,31,58,0.65)] backdrop-blur-[20px] border ${card.special ? 'border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.15)]' : 'border-[rgba(255,255,255,0.15)]'} p-5 rounded-2xl flex flex-col items-center justify-center text-center h-[150px] hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden`}>
-                  {card.special && <div className="absolute top-0 right-0 w-12 h-12 bg-amber-400/10 rounded-bl-full" />}
-                  {card.icon}
-                  <div className="text-[15px] font-bold text-white mb-2 leading-tight">
-                    {card.title}
-                  </div>
-                  <div className="text-[12px] text-white/75 font-medium leading-relaxed">
-                    {card.desc}
-                  </div>
+                'Free Site Survey',
+                'MNRE Subsidy Guidance',
+                'Premium Components',
+                'Professional Installation',
+                'Customer Support'
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2 group cursor-default">
+                  <CheckCircle2 size={16} className="text-emerald-400 group-hover:rotate-12 transition-transform duration-[180ms]" /> {item}
                 </div>
               ))}
             </motion.div>
-          </div>
+          </motion.div>
         </div>
 
         <div
-          className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 cursor-pointer scroll-bounce-anim"
+          className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex-col items-center gap-2 cursor-pointer scroll-bounce-anim opacity-70 hover:opacity-100 transition-opacity"
           onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
         >
           <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center p-1.5">
@@ -501,59 +498,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ========== SERVICES OVERVIEW ========== */}
-      <section className="section-pad bg-slate-50 border-y border-slate-200 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div className="max-w-2xl">
-              <span className="text-slate-500 font-mono text-sm tracking-widest uppercase mb-3 block">Service Infrastructure</span>
-              <h2 className="font-heading font-extrabold text-4xl lg:text-5xl text-[#0B1F3A] leading-tight">
-                Comprehensive Engineering Solutions
-              </h2>
-            </div>
-            <p className="text-slate-600 text-lg max-w-md border-l-2 border-[#22C55E] pl-6 py-2">
-              End-to-end solar infrastructure deployment, from initial site telemetry to lifetime maintenance contracts.
-            </p>
-          </div>
-
-          <motion.div
-            {...staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {services.map((service, i) => (
-              <motion.div
-                key={i}
-                {...staggerChild}
-                className="bg-white rounded-none border border-slate-200 p-8 hover:border-[#22C55E] hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all group relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#0B1F3A] to-[#22C55E] -translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-
-                <div className="w-14 h-14 bg-slate-50 border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  {service.icon}
-                </div>
-                <h3 className="font-heading font-bold text-xl text-[#0B1F3A] mb-3">{service.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-6">{service.desc}</p>
-                <div className="mt-auto pt-4 border-t border-slate-100 flex justify-between items-center">
-                  <span className="font-mono text-xs text-slate-400 font-semibold tracking-wider">SPEC_ID: 104{i}</span>
-                  <span className="inline-block bg-slate-100 text-[#0B1F3A] border border-slate-200 text-[11px] px-3 py-1 font-bold uppercase tracking-wide">
-                    {service.tag}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-          <div className="mt-12 text-center">
-            <button
-              onClick={() => router.push('/services')}
-              className="inline-flex items-center gap-2 border border-[#0B1F3A] text-[#0B1F3A] rounded-none px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-[#0B1F3A] hover:text-white transition-all"
-            >
-              View Full Service Specs <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* ========== SERVICES SHOWCASE ========== */}
+      <ServicesShowcase />
 
       {/* ========== DEPLOYMENT PROTOCOL ========== */}
       <section className="section-pad bg-white">

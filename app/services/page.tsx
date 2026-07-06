@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
-  Check, ShieldCheck, Zap, Award, Wrench,
+  Check, ShieldCheck, Zap, Award,
   FileText, Phone, Building2, Factory, Home, Briefcase,
   GraduationCap, X, Store,
   Warehouse, PenTool, CheckCircle2, AlertTriangle, MapPin,

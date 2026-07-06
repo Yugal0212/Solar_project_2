@@ -15,7 +15,7 @@ export default function Navbar() {
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null)
   const pathname = usePathname()
 
-  const isDarkText = isScrolled
+  const isDarkText = false // Force light text since navbar will be dark glass
 
   // A top-level item is "active" if the current path matches it or any of its
   // children (so dropdown parents stay highlighted on their sub-pages).
@@ -29,7 +29,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const shouldBeScrolled = window.scrollY > 80
+      const shouldBeScrolled = window.scrollY > 50
       setIsScrolled((current) => current === shouldBeScrolled ? current : shouldBeScrolled)
     }
     // Check immediately and also after a tiny delay to allow Next.js scroll restoration
@@ -49,33 +49,36 @@ export default function Navbar() {
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes navEnter {
+          0% { opacity: 0; transform: translateY(-20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-nav-enter {
+          animation: navEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.1s backwards;
+        }
+      `}} />
       <nav
-        className={`fixed top-0 left-0 right-0 z-[999] transition-all duration-500 ease-out px-4 sm:px-6 lg:px-8 ${
-          isScrolled ? 'pt-2 sm:pt-3' : 'pt-4 sm:pt-5'
+        className={`fixed z-[999] animate-nav-enter transition-all duration-[250ms] ease-out ${
+          isScrolled 
+            ? 'top-4 left-4 right-4 sm:left-8 sm:right-8 lg:left-12 lg:right-12 max-w-[88rem] mx-auto h-[74px] bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-full' 
+            : 'top-0 left-0 right-0 h-[84px] bg-transparent border-b border-transparent'
         }`}
       >
-        <div
-          className={`max-w-[88rem] mx-auto flex items-center justify-between rounded-2xl border px-4 sm:px-6 lg:px-8 transition-all duration-500 ease-out ${
-            isScrolled
-              ? 'h-[66px] bg-white/40 backdrop-blur-2xl border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.12)]'
-              : 'h-[74px] bg-white/10 backdrop-blur-2xl border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.15)]'
-          }`}
-        >
+        <div className="max-w-[88rem] h-full mx-auto flex items-center justify-between px-6 lg:px-8">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-300 ${
-              isDarkText ? 'bg-emerald-600' : 'bg-white/20 backdrop-blur-sm border border-white/30'
+          <Link href="/" className={`flex items-center gap-2.5 group drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)] transition-transform duration-[250ms] origin-left ${isScrolled ? 'scale-95' : 'scale-100'}`}>
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-[250ms] ${
+              isScrolled ? 'bg-emerald-600' : 'bg-white/20 backdrop-blur-sm border border-white/30'
             }`}>
               <Zap size={18} className="text-white" fill="currentColor" />
             </div>
             <div>
-              <span className={`font-heading font-black text-2xl tracking-tight transition-colors duration-300 ${
-                isDarkText ? 'text-[#0B1F3A]' : 'text-white'
-              }`}>
+              <span className={`font-heading font-black tracking-tight transition-all duration-[250ms] ${isScrolled ? 'text-xl text-slate-900' : 'text-2xl text-white'}`}>
                 LGPSM
               </span>
-              <span className={`block text-[10px] font-bold tracking-[0.2em] uppercase transition-colors duration-300 -mt-0.5 ${
-                isDarkText ? 'text-[#16A34A]' : 'text-white/80'
+              <span className={`block text-[10px] font-bold tracking-[0.2em] uppercase transition-colors duration-[250ms] -mt-0.5 ${
+                isScrolled ? 'text-emerald-600' : 'text-white/80'
               }`}>
                 Solar Energy
               </span>
@@ -83,33 +86,19 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-10">
             {navLinks.map((link) => {
               const active = isLinkActive(link)
-              const linkClasses = `relative flex items-center gap-1 px-4 py-2 text-lg font-bold tracking-[0.2px] rounded-full transition-all duration-300 ${
+              const linkClasses = `relative flex items-center gap-1.5 py-2 text-[16px] font-[600] transition-colors duration-[250ms] after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-[2px] after:bottom-0 after:left-0 after:bg-[#22C55E] after:origin-left after:transition-transform after:duration-[250ms] hover:after:scale-x-100 ${
                 active
-                  ? isDarkText
-                    ? 'text-[#16A34A] bg-green-50'
-                    : 'text-[#22C55E] [text-shadow:_0_2px_10px_rgba(0,0,0,0.5)]'
-                  : isDarkText
-                    ? 'text-[#0B1F3A] hover:text-[#16A34A] hover:bg-slate-50'
-                    : 'text-[rgba(255,255,255,0.95)] hover:text-[#22C55E] [text-shadow:_0_2px_10px_rgba(0,0,0,0.3)]'
+                  ? (isScrolled ? 'text-emerald-600 after:scale-x-100' : 'text-white after:scale-x-100')
+                  : (isScrolled ? 'text-slate-700 hover:text-emerald-600' : 'text-[rgba(255,255,255,0.92)] hover:text-[#22C55E]')
               }`
-              const indicator = active && (
-                <motion.div
-                  layoutId="nav-indicator"
-                  className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
-                    isDarkText ? 'bg-[#16A34A]' : 'bg-[#22C55E] shadow-[0_0_5px_rgba(34,197,94,0.5)]'
-                  }`}
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                />
-              )
 
               if (!link.children) {
                 return (
                   <Link key={link.path} href={link.path} className={linkClasses}>
                     {link.label}
-                    {indicator}
                   </Link>
                 )
               }
@@ -127,28 +116,27 @@ export default function Navbar() {
                       size={14}
                       className={`transition-transform duration-200 ${openDropdown === link.label ? 'rotate-180' : ''}`}
                     />
-                    {indicator}
                   </Link>
                   <AnimatePresence>
                     {openDropdown === link.label && (
                       <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.15 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
                         className="absolute top-full left-0 pt-3"
                       >
-                        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.18)] border border-white/40 py-2 min-w-[250px] overflow-hidden">
+                        <div className="bg-white/95 backdrop-blur-[24px] rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-200/60 py-3 min-w-[240px] overflow-hidden">
                           {link.children.map((child) => {
                             const childActive = pathname === child.path || pathname.startsWith(`${child.path}/`)
                             return (
                               <Link
                                 key={child.path}
                                 href={child.path}
-                                className={`block px-5 py-2.5 text-sm font-semibold transition-colors ${
+                                className={`block px-6 py-3 text-[15px] font-[600] transition-colors ${
                                   childActive
-                                    ? 'text-emerald-700 bg-white/60'
-                                    : 'text-slate-700 hover:text-emerald-700 hover:bg-white/50'
+                                    ? 'text-emerald-600 bg-emerald-50/50'
+                                    : 'text-slate-600 hover:text-emerald-600 hover:bg-slate-50'
                                 }`}
                               >
                                 {child.label}
@@ -180,9 +168,9 @@ export default function Navbar() {
             <a
               href="/catalog.pdf"
               download="LGPSM-Catalog.pdf"
-              className="flex items-center gap-2 bg-[#16A34A] hover:bg-green-700 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-[0_4px_16px_rgba(22,163,74,0.4)] hover:shadow-[0_6px_24px_rgba(22,163,74,0.5)] hover:-translate-y-0.5 transition-all duration-300"
+              className="flex items-center gap-2 bg-[#22C55E] hover:bg-emerald-600 text-white text-base font-bold px-8 h-14 rounded-full shadow-[0_8px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_12px_24px_rgba(34,197,94,0.4)] hover:-translate-y-1 transition-all duration-300"
             >
-              Download Catalog <Download size={14} />
+              Download Catalog <Download size={18} />
             </a>
           </div>
 
@@ -190,7 +178,7 @@ export default function Navbar() {
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className={`lg:hidden p-2 rounded-lg transition-colors ${
-              isDarkText ? 'text-slate-800 hover:bg-slate-100' : 'text-white hover:bg-white/10'
+              isScrolled ? 'text-slate-800 hover:bg-slate-100' : 'text-white hover:bg-white/10'
             }`}
           >
             <Menu size={22} />
