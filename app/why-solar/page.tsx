@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import {
   Zap, Leaf, CheckCircle2, ArrowRight, X,
   ShieldCheck,
@@ -83,8 +83,11 @@ export default function WhySolarPage() {
       <InnerPageHero
         label="WHY SOLAR"
         title="Stop Renting Your Power. Start Owning It."
-        subtitle="Join thousands of smart homeowners and businesses who have eliminated their electricity bills and secured their financial future."
+        highlightWords={['Owning', 'It.']}
+        subtitle="Secure Your Financial Future"
+        description="Join thousands of smart homeowners and businesses who have eliminated their electricity bills and secured their financial future."
         imagePath="/hero-bg.png"
+        breadcrumbs={[{ label: 'Resources', path: '/resources' }, { label: 'Why Solar' }]}
       />
 
       {/* SECTION 1: WITHOUT SOLAR vs WITH SOLAR */}
@@ -93,7 +96,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="THE REALITY"
             title="The True Cost of Waiting"
-            subtext="Every month you delay going solar is another month of pure expense given to the grid."
+            subtitle="Don't Let the Grid Drain Your Assets"
+            description="Every month you delay transitioning to solar is another month of pure, unrecoverable expense given directly to the utility company. It's time to own your power."
           />
           <div className="grid md:grid-cols-2 gap-8 mt-16">
             <motion.div {...fadeLeft} className="bg-white rounded-3xl border border-red-100 shadow-xl overflow-hidden">
@@ -140,7 +144,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="24/7 EFFICIENCY"
             title="A Day in the Life with Solar"
-            subtext="See how your system works autonomously around the clock to save you money."
+            subtitle="Intelligent Energy Generation"
+            description="Watch how a premium LGPSM solar system works autonomously around the clock to capture sunlight, power your home, and drastically slash your utility bills."
           />
           <div className="grid md:grid-cols-4 gap-6 mt-16">
             {dayInLife.map((step, i) => (
@@ -162,7 +167,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="FINANCIAL TIMELINE"
             title="Your 25-Year Savings Journey"
-            subtext="Solar is not just an appliance; it's a compounding financial asset."
+            subtitle="A Compounding Financial Asset"
+            description="Solar is not merely a home appliance; it is one of the highest-yielding, lowest-risk financial investments you can make for your property's future."
             light
           />
           <div className="mt-20 relative">
@@ -191,7 +197,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="CALCULATE YOUR ROI"
             title="See Exactly What You Could Save"
-            subtext="Use our live calculator to project your 25-year savings and understand your exact payback period."
+            subtitle="Live Financial Projections"
+            description="Use our interactive calculator to project your 25-year cumulative savings and understand the exact payback period for your specific roof and energy profile."
           />
           <div className="mt-12">
             <SolarCalculator />
@@ -205,6 +212,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="RESIDENTIAL SOLAR"
             title="Why Homeowners Switch to Solar"
+            subtitle="Unlock the Equity in Your Roof"
+            description="Thousands of homeowners are realizing that generating their own power is the smartest way to increase property value and eliminate monthly liabilities."
           />
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
             {homeReasons.map((reason, i) => (
@@ -225,7 +234,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="COMMERCIAL SOLAR"
             title="Why Businesses Choose Solar"
-            subtext="Protect your margins and leverage powerful tax incentives."
+            subtitle="Protect Margins and Maximize ROI"
+            description="For heavy industries and commercial spaces, solar isn't just an eco-friendly choice—it's a massive financial lever that leverages powerful tax incentives and drastically reduces OpEx."
             light
           />
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
@@ -245,8 +255,9 @@ export default function WhySolarPage() {
         <div className="max-w-7xl mx-auto px-4">
           <SectionHeader
             eyebrow="CASE STUDIES"
-            title="Real Life Impact"
-            subtext="Numbers don't lie. Look at what our customers are actually saving."
+            title="Real Life Financial Impact"
+            subtitle="Numbers Do Not Lie"
+            description="Look at what our customers are actually saving month over month. These are real properties, real deployments, and real financial returns."
           />
           <div className="grid md:grid-cols-3 gap-8 mt-16">
             {caseStudies.map((study, i) => (
@@ -282,6 +293,8 @@ export default function WhySolarPage() {
           <SectionHeader
             eyebrow="FAQ"
             title="Myths vs Reality"
+            subtitle="The Truth About Solar Energy"
+            description="There is a lot of misinformation about solar deployment. We're here to clear the air with hard facts and engineering realities."
           />
           <div className="mt-16 space-y-4">
             {myths.map((myth, i) => (
@@ -316,7 +329,13 @@ export default function WhySolarPage() {
       {/* SECTION 9: ENVIRONMENTAL IMPACT */}
       <section className="py-24 bg-emerald-900 text-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
-          <SectionHeader eyebrow="THE BIGGER PICTURE" title="Environmental Impact" subtext="One standard 5kW solar system can offset an incredible amount of damage." light />
+          <SectionHeader 
+            eyebrow="THE BIGGER PICTURE" 
+            title="Massive Environmental Impact" 
+            subtitle="Healing the Planet, One Roof at a Time"
+            description="Beyond the incredible financial returns, deploying a standard 5kW solar system offsets a monumental amount of carbon damage every single year." 
+            light 
+          />
           <div className="grid md:grid-cols-3 gap-8 mt-16">
             <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-emerald-800/50 backdrop-blur-md border border-emerald-700/50 rounded-3xl p-10">
               <TreeDeciduous size={48} className="mx-auto text-emerald-400 mb-6" />
@@ -340,7 +359,12 @@ export default function WhySolarPage() {
       {/* SECTION 10: WHY NOW */}
       <section className="py-24 bg-white">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <SectionHeader eyebrow="URGENCY" title="Why Now Is The Best Time" />
+          <SectionHeader 
+            eyebrow="URGENCY" 
+            title="Why Now Is The Best Time" 
+            subtitle="The Perfect Storm for Solar Deployment"
+            description="With falling equipment costs, rising grid prices, and lucrative government subsidies available right now, there has never been a better time in history to secure your energy independence."
+          />
           <div className="flex flex-wrap justify-center gap-4 mt-12">
             <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-6 py-3 rounded-full font-bold">Government Subsidies Available NOW</span>
             <span className="bg-red-50 text-red-700 border border-red-200 px-6 py-3 rounded-full font-bold">Grid Costs Rising 6% Annually</span>

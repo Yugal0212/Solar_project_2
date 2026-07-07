@@ -1,6 +1,6 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
@@ -117,8 +117,10 @@ export default function ServicesPage() {
       {/* Hero */}
       <InnerPageHero
         label="ENTERPRISE SERVICES"
-        title="Complete Solar Solutions, From Survey to Lifetime Support"
-        subtitle="We don't just install panels - we engineer your energy independence. Discover enterprise-grade execution for your home or business."
+        title="Complete Solar Solutions"
+        highlightWords={['Solar', 'Solutions']}
+        subtitle="From Survey to Lifetime Support"
+        description="We don't just install panels - we engineer your energy independence. Discover enterprise-grade execution for your home or business."
         imagePath="/images/products/hero-rooftop-array.jpg"
       />
 
@@ -128,7 +130,8 @@ export default function ServicesPage() {
           <SectionHeader
             eyebrow="OUR EXPERTISE"
             title="Core Engineering Capabilities"
-            subtext="Delivering enterprise-grade solar infrastructure with uncompromising quality and precision engineering."
+            subtitle="Precision Engineered Solar Infrastructure"
+            description="We deliver enterprise-grade installations with uncompromising quality. Our expert engineers design systems tailored to maximize your roof's potential while ensuring absolute structural integrity."
           />
           <div className="mt-20 space-y-24">
             {coreCapabilities.map((cap, i) => (
@@ -180,7 +183,8 @@ export default function ServicesPage() {
           <SectionHeader
             eyebrow="THE LGPSM DIFFERENCE"
             title="Why Clients Choose Our Services"
-            subtext="We eliminate the complexity of going solar. Our comprehensive approach ensures zero headaches and maximum returns."
+            subtitle="Zero Headaches. Maximum Returns."
+            description="We eliminate the complexity of transitioning to solar energy. Our comprehensive, end-to-end approach ensures seamless deployment, regulatory compliance, and immediate cost savings."
           />
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
             {whyChooseUs.map((item, i) => (
@@ -203,7 +207,8 @@ export default function ServicesPage() {
           <SectionHeader
             eyebrow="EXECUTION PROTOCOL"
             title="Our 7-Step Solar Process"
-            subtext="A meticulously engineered workflow guaranteeing precision installation from day one."
+            subtitle="Meticulously Engineered Deployment"
+            description="From initial feasibility analysis to lifetime monitoring, our standardized workflow guarantees precision installation and rapid commissioning from day one."
             light
           />
           <div className="mt-20 relative">
@@ -231,6 +236,8 @@ export default function ServicesPage() {
           <SectionHeader
             eyebrow="THE COMPARISON"
             title="Don't Risk Your Roof with Amateurs"
+            subtitle="The Hidden Cost of Cheap Solar"
+            description="Substandard installations can lead to roof leaks, electrical hazards, and massive yield losses. See why investing in enterprise-grade deployment is the only logical choice."
           />
           <div className="grid md:grid-cols-2 gap-8 mt-16">
             <motion.div {...fadeLeft} className="bg-white rounded-3xl border border-red-100 shadow-xl overflow-hidden">
@@ -277,7 +284,8 @@ export default function ServicesPage() {
           <SectionHeader
             eyebrow="STANDARDISED DEPLOYMENT"
             title="Residential & SME Packages"
-            subtext="Pre-engineered deployment tiers designed for rapid installation, guaranteed yields, and streamlined subsidy processing."
+            subtitle="Pre-Engineered Deployment Tiers"
+            description="Our packaged systems are designed for rapid installation, guaranteed yields, and streamlined government subsidy processing. Choose the tier that matches your exact energy profile."
           />
           <motion.div {...staggerContainer} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
             {packages.map((pkg, i) => (
@@ -350,7 +358,12 @@ export default function ServicesPage() {
       {/* WHO WE SERVE */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <SectionHeader eyebrow="AUDIENCE" title="Who We Serve" />
+          <SectionHeader 
+            eyebrow="AUDIENCE" 
+            title="Who We Serve"
+            subtitle="Powering Homes and Heavy Industries"
+            description="From individual households looking to eliminate energy bills to massive commercial warehouses requiring megawatt-scale deployments, we scale our solutions to meet the exact demands of our diverse clientele."
+          />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16">
             {audiences.map((item, i) => (
               <motion.div key={i} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} className="bg-slate-50 rounded-2xl p-6 text-center border border-slate-100 hover:border-emerald-200 hover:bg-white hover:shadow-xl transition-all group">
@@ -370,6 +383,8 @@ export default function ServicesPage() {
           <SectionHeader
             eyebrow="OPERATIONAL REACH"
             title="Gujarat Distribution & Execution Network"
+            subtitle="Statewide Deployment Capabilities"
+            description="With engineering hubs strategically located across Gujarat, our rapid-response teams are equipped to handle installations, maintenance, and grid-integration anywhere in the state."
           />
           <motion.div {...staggerContainer} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
             {cities.map((city, i) => (

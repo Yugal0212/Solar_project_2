@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect } from 'react'
-import { motion, useInView, animate, useReducedMotion } from 'framer-motion'
+import { motion, useInView, animate, useReducedMotion } from 'motion/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -74,8 +74,10 @@ export default function AboutPage() {
       {/* G1 - Page Hero */}
       <InnerPageHero
         label="ABOUT US"
-        title={<>Pioneering the <span className="text-emerald-400">Solar Revolution</span> in Gujarat</>}
-        subtitle="LGPSM Solar is an engineering-driven solar startup founded right here in Rajkot. We design every system from first principles and handle the paperwork end to end, so homes and businesses across Western India can switch to honest, transparent solar power."
+        title="Pioneering the Solar Revolution in Gujarat"
+        highlightWords={['Solar', 'Revolution']}
+        subtitle="Engineering-Driven Execution"
+        description="LGPSM Solar is an engineering-driven solar startup founded right here in Rajkot. We design every system from first principles and handle the paperwork end to end, so homes and businesses across Western India can switch to honest, transparent solar power."
         imagePath="/founders.png"
       />
 
@@ -136,8 +138,9 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4">
           <SectionHeader
             eyebrow="OUR JOURNEY"
-            title="Four Years, Built One Rooftop at a Time"
-            subtext="Every line below is a real milestone, on real roofs, somewhere in Gujarat."
+            title="Built One Rooftop at a Time"
+            subtitle="Four Years of Relentless Execution"
+            description="Our history isn't written in a boardroom. Every milestone below represents real steel, real silicon, and real energy independence delivered across Gujarat."
           />
 
           <div className="relative mt-16 max-w-3xl mx-auto">
@@ -199,7 +202,8 @@ export default function AboutPage() {
           <SectionHeader
             eyebrow="OUR LEADERSHIP"
             title="The Engineering Minds Powering Our Growth"
-            subtext="Meet the core founders and directors leading LGPSM Solar's mission in Gujarat."
+            subtitle="Decades of Combined Industry Expertise"
+            description="Meet the core founders and directors leading LGPSM Solar's mission. We are engineers and operators obsessed with deploying perfect solar infrastructure."
           />
 
           <motion.div
@@ -281,7 +285,8 @@ export default function AboutPage() {
           <SectionHeader
             eyebrow="CREDENTIALS"
             title="Certified, Approved, and Trusted"
-            subtext="LGPSM Solar operates with full regulatory compliance across all major solar and electrical bodies in India."
+            subtitle="Zero Compromise on Compliance"
+            description="LGPSM Solar operates with full regulatory compliance across all major solar, electrical, and structural engineering bodies in India."
           />
           <motion.div
             initial="initial"

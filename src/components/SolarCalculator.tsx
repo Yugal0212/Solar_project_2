@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, memo } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect, useCallback, memo, useRef } from 'react'
 import CountUp from 'react-countup'
 import { Sun, TrendingDown, IndianRupee, Award, Clock, Star, ArrowRight, Home, Building, Factory } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useStaggerReveal } from '../hooks/useAnimations'
 
 interface SolarResults {
   systemSize: number
@@ -22,13 +22,7 @@ interface SolarResults {
 
 // Memoized results panel to prevent lag when dragging the slider
 const ResultsPanel = memo(({ results, onContactClick }: { results: SolarResults; onContactClick: () => void }) => (
-  <motion.div
-    initial={{ opacity: 0, x: 40 }}
-    whileInView={{ opacity: 1, x: 0 }}
-    viewport={{ once: true, margin: '-50px' }}
-    style={{ willChange: 'transform, opacity' }}
-    className="bg-white rounded-2xl shadow-card p-8 flex flex-col h-full"
-  >
+  <div className="bg-white rounded-2xl shadow-card p-8 flex flex-col h-full reveal-item">
     <h4 className="font-heading font-semibold text-lg text-slate-900 mb-6">Your Estimated Savings</h4>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
@@ -134,7 +128,7 @@ const ResultsPanel = memo(({ results, onContactClick }: { results: SolarResults;
     >
       Get a Quote <ArrowRight size={16} />
     </button>
-  </motion.div>
+  </div>
 ))
 
 ResultsPanel.displayName = 'ResultsPanel'
@@ -254,16 +248,13 @@ export default function SolarCalculator({ includeSubsidyToggle = false, includeL
     return () => clearTimeout(timer)
   }, [monthlyBill, roofSize, city, propertyType, includeSubsidy, calculateResults])
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  useStaggerReveal(containerRef, '.reveal-item')
+
   return (
-    <div className="grid lg:grid-cols-2 gap-8">
+    <div ref={containerRef} className="grid lg:grid-cols-2 gap-8">
       {/* Input Panel */}
-      <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, margin: '-50px' }}
-        style={{ willChange: 'transform, opacity' }}
-        className="bg-white rounded-2xl shadow-card p-8 flex flex-col h-full"
-      >
+      <div className="bg-white rounded-2xl shadow-card p-8 flex flex-col h-full reveal-item">
         <h4 className="font-heading font-semibold text-lg text-slate-900 mb-6">Enter Your Details</h4>
 
         {/* Monthly Bill Slider */}
@@ -367,7 +358,7 @@ export default function SolarCalculator({ includeSubsidyToggle = false, includeL
             </label>
           </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Results Panel */}
       <ResultsPanel results={results} onContactClick={() => router.push('/contact')} />

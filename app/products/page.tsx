@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, ElementType } from 'react'
-import { motion, Variants } from 'framer-motion'
+import { motion, Variants } from 'motion/react'
 import Image from 'next/image'
 import {
   Sun, Zap, Battery, Plug, LayoutGrid, Download, Thermometer, Wind, CloudRain, ShieldCheck, CheckCircle2
@@ -85,9 +85,12 @@ export default function ProductsPage() {
       {/* H1 - Page Hero */}
       <InnerPageHero
         label="PRODUCTS"
-        title="Solar Products Built for Gujarat's Climate"
-        subtitle="High-efficiency panels, smart inverters, and lithium storage - every component certified, warrantied, and perfectly matched to your needs."
+        title="Solar Products Built for Extreme Climates"
+        highlightWords={['Extreme', 'Climates']}
+        subtitle="Uncompromising Tier-1 Hardware"
+        description="High-efficiency panels, smart inverters, and lithium storage—every component certified, warrantied, and perfectly matched to your exact energy profile."
         imagePath="/images/products/panel-1.jpg"
+        breadcrumbs={[{ label: 'Resources', path: '/resources' }, { label: 'Products' }]}
       />
 
       {/* H2 - Filter Bar */}
@@ -160,8 +163,9 @@ export default function ProductsPage() {
         <div className="max-w-6xl mx-auto px-4">
           <SectionHeader
             eyebrow="DURABILITY"
-            title="Engineered for Gujarat's Climate"
-            subtext="Every product on this page is selected and de-rated for local heat, dust, and monsoon conditions - not generic spec-sheet numbers."
+            title="Engineered for Extreme Climates"
+            subtitle="Built to Outlast The Elements"
+            description="Every component in our hardware stack is meticulously selected and de-rated for local heat, dust, and heavy monsoon conditions—not just generic spec-sheet numbers."
           />
           <motion.div
             initial="hidden"

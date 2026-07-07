@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Preloader() {
   const [isVisible, setIsVisible] = useState(true)
   const [isFading, setIsFading] = useState(false)
-  const progressRef = useRef<HTMLSpanElement>(null)
 
   // Generate the animated letters synchronously so they render immediately (prevents lag).
   const text = "PARMAYU"
@@ -20,63 +19,48 @@ export default function Preloader() {
   })
 
   useEffect(() => {
+    // Check if preloader has been seen in this session
+    const hasSeenPreloader = sessionStorage.getItem('hasSeenPreloader')
+    
+    if (hasSeenPreloader) {
+      setIsVisible(false)
+      // Small delay to ensure React has painted before dispatching
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent('app-ready', { detail: { immediate: true } }))
+      })
+      return
+    }
+
     // Force scroll to top on mount
     window.scrollTo(0, 0);
 
     const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const FADE_MS = reduced ? 250 : 500
+    const FAST_TIMEOUT = 1800 // wait for animations to finish smoothly
+    let isLoaded = false
 
-    // Luxurious preloader: 800ms run + 300ms hold = 1100ms
-    const FADE_START = reduced ? 300 : 1100
-    const FADE_MS = reduced ? 250 : 800
+    const triggerFadeOut = () => {
+      if (isLoaded) return
+      isLoaded = true
 
-    // Animate the 0 to 100% counter manually via ref to avoid React lag
-    let start: number | null = null
-    let frameId: number
-    const animateProgress = (timestamp: number) => {
-      if (!progressRef.current) return
-      if (start === null) start = timestamp
-      const elapsed = timestamp - start
-      
-      const t = Math.min(1, Math.max(0, elapsed / FADE_START))
-      const easeOut = 1 - Math.pow(1 - t, 4) // Starts fast, slows down
-      const current = Math.floor(easeOut * 100)
-      
-      progressRef.current.innerText = `${current}%`
-      
-      if (elapsed < FADE_START) {
-        frameId = requestAnimationFrame(animateProgress)
-      } else {
-        progressRef.current.innerText = `100%`
-      }
-    }
-    
-    if (!reduced) {
-      frameId = requestAnimationFrame(animateProgress)
-    } else {
-      if (progressRef.current) progressRef.current.innerText = `100%`
-    }
-
-    const timer1 = setTimeout(() => {
       setIsFading(true)
       
-      const timer2 = setTimeout(() => {
+      // Dispatch event exactly when preloader starts fading
+      window.dispatchEvent(new CustomEvent('app-ready', { detail: { immediate: false } }))
+
+      setTimeout(() => {
         setIsVisible(false)
-        document.body.style.overflow = ''
-        document.documentElement.style.overflow = ''
+        sessionStorage.setItem('hasSeenPreloader', 'true')
         window.scrollTo(0, 0);
       }, FADE_MS)
-      
-      return () => clearTimeout(timer2)
-    }, FADE_START)
+    }
 
-    document.body.style.overflow = 'hidden'
-    document.documentElement.style.overflow = 'hidden'
+    // Never rely on window.load in Next.js because it can cause freezing if scripts hang. 
+    // Just run a fast fixed timeout.
+    const fadeTimeout = setTimeout(triggerFadeOut, FAST_TIMEOUT)
 
     return () => {
-      clearTimeout(timer1)
-      cancelAnimationFrame(frameId)
-      document.body.style.overflow = ''
-      document.documentElement.style.overflow = ''
+      clearTimeout(fadeTimeout)
     }
   }, [])
 
@@ -104,9 +88,12 @@ export default function Preloader() {
             radial-gradient(ellipse 560px 380px at 50% 22%, rgba(253,184,19,.14), transparent 70%),
             var(--bg);
           opacity:1;
-          transition:opacity .8s var(--ease), filter .8s var(--ease);
+          transform: scale(1);
+          transform-origin: center center;
+          transition:opacity .8s var(--ease), transform .8s var(--ease), filter .8s var(--ease);
+          will-change: opacity, transform, filter;
         }
-        #preloader.fade-out{opacity:0; filter: blur(4px);}
+        #preloader.fade-out{opacity:0; transform: scale(1.03); filter: blur(0px);}
 
         .illustration-wrap{display:flex;justify-content:center;align-items:flex-start;width:320px;height:210px;}
         .illustration{position:relative;width:320px;height:210px;transform-origin:top center;overflow:visible;}
@@ -328,41 +315,10 @@ export default function Preloader() {
         }
         @keyframes slogan-in{ to{opacity:1;transform:translateY(0);} }
 
-        .load-wrap{
-          width:min(200px,50vw);
-          margin-top:24px;
-        }
-        
-        .load-track{
-          position:relative;width:100%;height:4px;border-radius:4px;
-          background:var(--gray);overflow:hidden;
-        }
-        .load-fill{
-          position:absolute;left:0;top:0;height:100%;width:100%;border-radius:4px;
-          background:linear-gradient(90deg,var(--yellow),var(--blue),var(--green));
-          transform: scaleX(0);
-          transform-origin: left;
-          animation:load-fill 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-          animation-delay:0s;
-          will-change: transform;
-        }
-        @keyframes load-fill{ to{transform: scaleX(1);} }
-        .load-track::after{
-          content:'';position:absolute;top:0;left:-40%;width:30%;height:100%;
-          background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
-          animation:shimmer .8s ease-in-out infinite;
-          will-change: transform;
-        }
-        @keyframes shimmer{ 
-          0%{transform:translateX(0);} 
-          100%{transform:translateX(500%);} 
-        }
-
         @media (prefers-reduced-motion: reduce){
           .sun-rays,.sun-core,.mote,.beam,.house-piece,.win,.door,.ground-glow,
           .panel-unit,.panel-frame::after,.cell::before,.panel-flash,.drop,
-          .stem,.leaflet,.logo-glow,.logo span,.logo-underline,.slogan,
-          .load-wrap,.load-fill,.load-track::after{
+          .stem,.leaflet,.logo-glow,.logo span,.logo-underline,.slogan{
             animation-duration:.01ms !important;
             animation-delay:0s !important;
             transition-duration:.01ms !important;
@@ -415,14 +371,6 @@ export default function Preloader() {
           </h1>
           <div className="logo-underline"></div>
           <p className="slogan">Powering Tomorrow with Smart Solar Energy</p>
-        </div>
-
-        <div className="load-wrap">
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', width: '100%', alignItems: 'center' }}>
-             <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>SYSTEM LOADING</span>
-             <span ref={progressRef} style={{ fontSize: '12px', fontWeight: 800, color: '#22c55e', fontVariantNumeric: 'tabular-nums' }}>0%</span>
-          </div>
-          <div className="load-track"><div className="load-fill"></div></div>
         </div>
       </div>
     </>

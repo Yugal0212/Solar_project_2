@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import Image from 'next/image'
 import {
   Phone, Mail, MessageCircle, MapPin, Clock, CheckCircle2,
@@ -63,7 +63,9 @@ export default function ContactPage() {
       <InnerPageHero
         label="CONTACT"
         title="Let's Start Your Solar Journey"
-        subtitle="Reach out via any channel - we respond within 2-4 hours. Monday to Saturday, 9 AM to 6 PM."
+        highlightWords={['Solar', 'Journey']}
+        subtitle="Connect With Our Engineering Experts"
+        description="Reach out via any channel below. Our technical team typically responds within 2-4 hours. Operations run Monday to Saturday, 9 AM to 6 PM."
         imagePath="/hero 2.png"
       />
 
@@ -73,7 +75,8 @@ export default function ContactPage() {
           <SectionHeader
             eyebrow="YOUR JOURNEY"
             title="The Solar Consultation Process"
-            subtext="From your first call to flipping the switch, we make transitioning to clean energy effortless."
+            subtitle="Zero Hassle. Complete Transparency."
+            description="From your first call to flipping the switch, we make transitioning to clean energy an effortless and highly transparent engineering process."
           />
           <div className="grid md:grid-cols-4 gap-8 mt-12">
             {processSteps.map((step, i) => (
@@ -139,6 +142,8 @@ export default function ContactPage() {
           <SectionHeader
             eyebrow="TAKE ACTION"
             title="Book Your Free Solar Assessment"
+            subtitle="Start Your Transition Today"
+            description="Our engineering team is ready to analyze your energy profile and deliver a comprehensive rooftop feasibility study."
           />
           <div className="grid lg:grid-cols-5 gap-12 mt-12">
             {/* Form */}
@@ -261,7 +266,12 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div {...fadeLeft}>
-              <SectionHeader eyebrow="HEADQUARTERS" title="Visit Our Office" centered={false} />
+              <SectionHeader 
+                eyebrow="HEADQUARTERS" 
+                title="Visit Our Office" 
+                subtitle="Gujarat's Premier Solar Hub"
+                centered={false} 
+              />
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mt-8">
                 <ul className="space-y-6">
                   <li className="flex items-start gap-4">

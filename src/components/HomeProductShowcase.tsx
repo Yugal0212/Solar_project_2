@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
+import { useRef } from 'react'
+import { useScrollReveal, useHeadingReveal, useStaggerReveal } from '../hooks/useAnimations'
 import Image from 'next/image'
 import { ArrowRight, Sun, Zap, Battery, Wrench } from 'lucide-react'
 import Link from 'next/link'
@@ -60,8 +62,18 @@ export default function HomeProductShowcase() {
     return () => clearInterval(interval)
   }, [isHovered])
 
+  const sectionRef = useRef<HTMLElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+  const carouselRef = useRef<HTMLDivElement>(null)
+
+  useScrollReveal(sectionRef, 'up')
+  useHeadingReveal(headingRef)
+  useStaggerReveal(textRef, '.reveal-item')
+  useStaggerReveal(carouselRef, '.reveal-item')
+
   return (
-    <section className="py-24 bg-slate-50 overflow-hidden relative">
+    <section ref={sectionRef} className="py-24 bg-slate-50 overflow-hidden relative">
       <div className="max-w-[90rem] mx-auto px-6 lg:px-12">
         
         {/* Header Section */}
@@ -73,31 +85,29 @@ export default function HomeProductShowcase() {
             viewport={{ once: true }}
             className="flex-shrink-0"
           >
-            <h2 className="font-heading font-black text-5xl lg:text-7xl leading-[1.1] tracking-tight">
-              <span className="text-[#DC2626]">Our</span> <span className="text-slate-900">Core</span>
+            <h2 ref={headingRef} className="font-heading font-black text-5xl lg:text-7xl leading-[1.1] tracking-tight sweep-text">
+              <span className="text-emerald-500">Our</span> <span className="text-slate-900">Core</span>
               <br />
-              <span className="text-[#DC2626]">Products</span>
+              <span className="text-emerald-500">Products</span>
             </h2>
           </motion.div>
           
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            viewport={{ once: true }}
+          <div 
+            ref={textRef}
             className="max-w-2xl pt-2 lg:pt-4"
           >
-            <h3 className="font-heading font-bold text-3xl lg:text-4xl text-slate-900 mb-6">
+            <h3 className="font-heading font-bold text-3xl lg:text-4xl text-slate-900 mb-6 reveal-item">
               Comprehensive Hardware Ecosystem
             </h3>
-            <p className="text-slate-600 text-lg leading-relaxed">
+            <p className="text-slate-600 text-lg leading-relaxed reveal-item">
               We source and integrate only the most reliable tier-1 components, ensuring your solar infrastructure delivers maximum efficiency and longevity for your home or business.
             </p>
-          </motion.div>
+          </div>
         </div>
 
         {/* Expanding Cards Carousel */}
         <div 
+          ref={carouselRef}
           className="flex flex-col lg:flex-row h-[800px] lg:h-[600px] gap-4 lg:gap-6 w-full"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -111,7 +121,7 @@ export default function HomeProductShowcase() {
               <div
                 key={idx}
                 onClick={() => setActiveIndex(idx)}
-                className={`relative rounded-[32px] overflow-hidden cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] flex-shrink-0 group hover:-translate-y-2 hover:shadow-2xl`}
+                className={`reveal-item relative rounded-[32px] overflow-hidden cursor-pointer transition-all duration-300 ease-out flex-shrink-0 group hover:-translate-y-1 hover:shadow-2xl`}
                 style={{
                   flex: isActive ? '4 1 0%' : '1 1 0%',
                   minHeight: isActive ? '300px' : '100px',
@@ -124,20 +134,20 @@ export default function HomeProductShowcase() {
                       src={product.img}
                       alt={product.title}
                       fill
-                      className={`object-cover transition-transform duration-[1.5s] ${isActive ? 'scale-105' : 'scale-100 opacity-50 grayscale-[50%]'}`}
+                      className={`object-cover transition-transform duration-500 ${isActive ? 'scale-105' : 'scale-100 opacity-50 grayscale-[50%]'}`}
                     />
                   )}
                 </div>
 
                 {/* Overlays */}
                 <div 
-                  className={`absolute inset-0 transition-opacity duration-700 
+                  className={`absolute inset-0 transition-opacity duration-300 
                     ${isActive ? 'bg-gradient-to-t from-[#022C22]/95 via-[#064E3B]/60 to-transparent' : 'bg-slate-900/60 group-hover:bg-slate-900/40'}
                   `} 
                 />
 
                 {/* The Notch (Top Right) */}
-                <div className="absolute top-0 right-0 w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-bl-[32px] flex items-center justify-center p-4 md:p-6 z-20 transition-all duration-700">
+                <div className="absolute top-0 right-0 w-20 h-20 md:w-24 md:h-24 bg-slate-50 rounded-bl-[32px] flex items-center justify-center p-4 md:p-6 z-20 transition-all duration-300">
                   <span className={`text-3xl md:text-4xl font-black leading-none tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-green-400 to-blue-600 bg-[length:200%_auto] animate-shimmer`}>
                     {product.num}
                   </span>
@@ -157,8 +167,8 @@ export default function HomeProductShowcase() {
 
                 {/* Inactive State: Vertical Title */}
                 <div 
-                  className={`absolute inset-0 flex flex-col items-center justify-center gap-4 lg:gap-8 transition-opacity duration-500
-                    ${isActive ? 'opacity-0 pointer-events-none' : 'opacity-100 delay-200'}
+                  className={`absolute inset-0 flex flex-col items-center justify-center gap-4 lg:gap-8 transition-opacity duration-300
+                    ${isActive ? 'opacity-0 pointer-events-none' : 'opacity-100 delay-100'}
                   `}
                 >
                   <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center transition-transform group-hover:scale-110">
@@ -171,8 +181,8 @@ export default function HomeProductShowcase() {
 
                 {/* Active State: Full Details */}
                 <div 
-                  className={`absolute inset-0 p-8 md:p-10 lg:p-12 flex flex-col justify-end transition-all duration-700
-                    ${isActive ? 'opacity-100 translate-y-0 delay-300' : 'opacity-0 translate-y-12 pointer-events-none'}
+                  className={`absolute inset-0 p-8 md:p-10 lg:p-12 flex flex-col justify-end transition-all duration-500
+                    ${isActive ? 'opacity-100 translate-y-0 delay-150' : 'opacity-0 translate-y-8 pointer-events-none'}
                   `}
                 >
                   <div className="w-14 h-14 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mb-6 backdrop-blur-sm">

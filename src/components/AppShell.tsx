@@ -1,12 +1,14 @@
 'use client'
 
 import { Toaster } from 'react-hot-toast'
+
 import Navbar from './Navbar'
 import Footer from './Footer'
 import BackToTop from './BackToTop'
 import WhatsAppFAB from './WhatsAppFAB'
 
 export default function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
+
   return (
     <div className="w-full flex flex-col min-h-screen relative">
       <Navbar />
@@ -26,3 +28,4 @@ export default function AppShell({ children }: Readonly<{ children: React.ReactN
     </div>
   )
 }
+

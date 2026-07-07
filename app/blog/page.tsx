@@ -8,13 +8,23 @@ export const metadata: Metadata = {
   alternates: { canonical: '/blog' },
 }
 
+import InnerPageHero from '@/src/components/InnerPageHero'
+
 export default function BlogIndexPage() {
   const posts = getAllPosts()
   return (
-    <main className="section-pad">
+    <main>
+      <InnerPageHero
+        label="BLOG"
+        title="Solar Blog & Guides"
+        highlightWords={['Blog', '&', 'Guides']}
+        subtitle="Expert Insights & Industry Updates"
+        description="Stay updated with the latest trends in solar technology, government subsidies, and maintenance tips."
+        imagePath="/images/products/panel-1.jpg"
+        breadcrumbs={[{ label: 'Resources', path: '/resources' }, { label: 'Blog' }]}
+      />
+      
       <div className="max-w-5xl mx-auto px-4 py-24">
-        <p className="text-sm font-bold tracking-[0.2em] uppercase text-emerald-600 mb-3">Blog</p>
-        <h1 className="font-heading font-black text-4xl lg:text-5xl text-slate-900">Solar Blog &amp; Guides</h1>
 
         {/* TODO: replace with designed cards. Listing wired to MDX content. */}
         <div className="mt-8 flex flex-wrap gap-2">

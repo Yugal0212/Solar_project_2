@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function FaqPage() {
-  return <PagePlaceholder eyebrow="FAQ" title="Frequently Asked Questions" />
+  return <PagePlaceholder eyebrow="FAQ" title="Frequently Asked Questions" breadcrumbs={[{ label: 'Resources', path: '/resources' }, { label: 'FAQ' }]} />
 }

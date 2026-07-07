@@ -3,6 +3,8 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 import AppShell from '../src/components/AppShell'
 import Preloader from '../src/components/Preloader'
+import SmoothScrollProvider from '../src/components/SmoothScrollProvider'
+import '../src/lib/gsap'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -59,8 +61,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${inter.variable} ${plusJakarta.variable}`}>
       <body>
-        <Preloader />
-        <AppShell>{children}</AppShell>
+        <SmoothScrollProvider>
+          <Preloader />
+          <AppShell>{children}</AppShell>
+        </SmoothScrollProvider>
       </body>
     </html>
   )

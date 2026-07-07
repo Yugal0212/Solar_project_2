@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function TestimonialsPage() {
-  return <PagePlaceholder eyebrow="Testimonials" title="What Our Customers Say" />
+  return <PagePlaceholder eyebrow="Testimonials" title="What Our Customers Say" breadcrumbs={[{ label: 'Resources', path: '/resources' }, { label: 'Testimonials' }]} />
 }

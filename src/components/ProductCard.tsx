@@ -1,7 +1,7 @@
 'use client'
 
 import { memo, useState, type ElementType } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Image from 'next/image'
 import { Sun, Zap, Battery, CheckCircle2, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'

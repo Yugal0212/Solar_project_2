@@ -8,12 +8,20 @@ export const metadata: Metadata = {
   alternates: { canonical: '/resources' },
 }
 
+import InnerPageHero from '@/src/components/InnerPageHero'
+
 export default function ResourcesIndexPage() {
   return (
-    <main className="section-pad">
+    <main>
+      <InnerPageHero
+        label="RESOURCES"
+        title="Solar Resources"
+        highlightWords={['Solar', 'Resources']}
+        subtitle="Your Guide to Green Energy"
+        description="Access comprehensive guides, subsidy information, and downloadable brochures to help you transition to solar power in Gujarat."
+        imagePath="/images/products/panel-1.jpg"
+      />
       <div className="max-w-5xl mx-auto px-4 py-24">
-        <p className="text-sm font-bold tracking-[0.2em] uppercase text-emerald-600 mb-3">Resources</p>
-        <h1 className="font-heading font-black text-4xl lg:text-5xl text-slate-900">Solar Resources</h1>
         <ul className="mt-8 space-y-2">
           {resources.map((r) => (
             <li key={r.slug}>

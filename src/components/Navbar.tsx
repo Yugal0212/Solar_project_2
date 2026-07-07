@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Zap, Phone, Download, ChevronDown } from 'lucide-react'
@@ -13,6 +13,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [expandedMobile, setExpandedMobile] = useState<string | null>(null)
+  const [isAppReady, setIsAppReady] = useState(false)
   const pathname = usePathname()
 
   const isDarkText = false // Force light text since navbar will be dark glass
@@ -47,22 +48,32 @@ export default function Navbar() {
     setIsMobileMenuOpen(false)
   }, [pathname])
 
+  useEffect(() => {
+    const handleAppReady = () => setIsAppReady(true)
+    if (sessionStorage.getItem('hasSeenPreloader')) {
+      setIsAppReady(true)
+    } else {
+      window.addEventListener('app-ready', handleAppReady)
+    }
+    
+    // Fallback if event is missed
+    const timer = setTimeout(() => setIsAppReady(true), 1500)
+    
+    return () => {
+      window.removeEventListener('app-ready', handleAppReady)
+      clearTimeout(timer)
+    }
+  }, [])
+
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes navEnter {
-          0% { opacity: 0; transform: translateY(-20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-nav-enter {
-          animation: navEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.1s backwards;
-        }
-      `}} />
       <nav
-        className={`fixed z-[999] animate-nav-enter transition-all duration-[250ms] ease-out ${
+        className={`fixed z-[999] transition-all ease-out ${
+          isAppReady ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5'
+        } ${
           isScrolled 
-            ? 'top-4 left-4 right-4 sm:left-8 sm:right-8 lg:left-12 lg:right-12 max-w-[88rem] mx-auto h-[74px] bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-full' 
-            : 'top-0 left-0 right-0 h-[84px] bg-transparent border-b border-transparent'
+            ? 'top-4 left-4 right-4 sm:left-8 sm:right-8 lg:left-12 lg:right-12 max-w-[88rem] mx-auto h-[74px] bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.1)] rounded-full duration-[250ms]' 
+            : 'top-0 left-0 right-0 h-[84px] bg-transparent border-b border-transparent duration-[800ms]'
         }`}
       >
         <div className="max-w-[88rem] h-full mx-auto flex items-center justify-between px-6 lg:px-8">
@@ -154,24 +165,28 @@ export default function Navbar() {
 
           {/* Desktop Buttons */}
           <div className="hidden lg:flex items-center gap-6">
-            <a 
+            <motion.a 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               href="tel:+919999900000" 
-              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 ${
+              className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors duration-300 ${
                 isDarkText 
-                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 hover:scale-105' 
-                  : 'bg-white text-emerald-600 shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:scale-110'
+                  ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
+                  : 'bg-white text-emerald-600 shadow-[0_4px_12px_rgba(0,0,0,0.15)]'
               }`}
               title="Call Us"
             >
               <Phone size={18} strokeWidth={2.5} />
-            </a>
-            <a
+            </motion.a>
+            <motion.a
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               href="/catalog.pdf"
               download="LGPSM-Catalog.pdf"
-              className="flex items-center gap-2 bg-[#22C55E] hover:bg-emerald-600 text-white text-base font-bold px-8 h-14 rounded-full shadow-[0_8px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_12px_24px_rgba(34,197,94,0.4)] hover:-translate-y-1 transition-all duration-300"
+              className="flex items-center gap-2 bg-[#22C55E] hover:bg-emerald-600 text-white text-base font-bold px-8 h-14 rounded-full shadow-[0_8px_20px_rgba(34,197,94,0.3)] transition-colors duration-300"
             >
               Download Catalog <Download size={18} />
-            </a>
+            </motion.a>
           </div>
 
           {/* Mobile Hamburger */}

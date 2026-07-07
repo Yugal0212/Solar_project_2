@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import { motion, Variants } from 'framer-motion'
+import { motion, Variants } from 'motion/react'
+import { useScrollReveal, useHeadingReveal, useStaggerReveal } from '../hooks/useAnimations'
 import { ArrowRight, Home, Building2, Factory, Shield, Wrench, Battery, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
@@ -11,42 +12,48 @@ const servicesData = [
     title: 'Residential', 
     desc: 'We design beautiful, high-efficiency rooftop systems for homes that combine functionality with aesthetic appeal, eliminating your energy bills.', 
     icon: <Home size={28} className="text-white mb-4" />,
-    img: '/hero-rooftop-ai.png'
+    img: '/hero-rooftop-ai.png',
+    slug: 'residential-solar-installation'
   },
   { 
     num: '02', 
     title: 'Commercial', 
     desc: 'Large-scale corporate installations designed to drastically reduce operational costs and maximize ROI through accelerated depreciation.', 
     icon: <Building2 size={28} className="text-white mb-4" />,
-    img: '/hero-desktop-optimized.jpg'
+    img: '/hero-desktop-optimized.jpg',
+    slug: 'commercial-solar-installation'
   },
   { 
     num: '03', 
     title: 'Industrial', 
     desc: 'Megawatt-scale ground-mounted and industrial rooftop infrastructure engineered for maximum durability and yield.', 
     icon: <Factory size={28} className="text-white mb-4" />,
-    img: '/premium_mission_solar.png'
+    img: '/premium_mission_solar.png',
+    slug: 'industrial-solar-installation'
   },
   { 
     num: '04', 
     title: 'Maintenance', 
     desc: 'Comprehensive Annual Maintenance Contracts (AMC) ensuring your infrastructure operates at peak 100% capacity year-round.', 
     icon: <Wrench size={28} className="text-white mb-4" />,
-    img: '/hero-mobile-optimized.jpg'
+    img: '/hero-mobile-optimized.jpg',
+    slug: 'solar-maintenance'
   },
   { 
     num: '05', 
     title: 'Consultancy', 
     desc: 'Expert site surveying, shadow analysis, and 3D planning to design the perfect custom system for your specific site constraints.', 
     icon: <Shield size={28} className="text-white mb-4" />,
-    img: '/hero-rooftop-ai.png' // Reusing images for demo purposes
+    img: '/hero-rooftop-ai.png', // Reusing images for demo purposes
+    slug: 'solar-consultancy'
   },
   { 
     num: '06', 
-    title: 'Energy Storage', 
-    desc: 'Advanced Lithium-ion battery integrations to provide robust backup power during grid outages and maximize self-consumption.', 
+    title: 'EPC Solutions', 
+    desc: 'End-to-end Engineering, Procurement, and Construction for large-scale utility and corporate solar parks.', 
     icon: <Battery size={28} className="text-white mb-4" />,
-    img: '/hero-desktop-optimized.jpg'
+    img: '/hero-desktop-optimized.jpg',
+    slug: 'solar-epc-solutions'
   }
 ]
 
@@ -91,8 +98,16 @@ export default function ServicesShowcase() {
     setActiveIndex(prev => Math.max(prev - 1, 0));
   }
 
+  const sectionRef = React.useRef<HTMLElement>(null);
+  const headingRef = React.useRef<HTMLHeadingElement>(null);
+  const textRef = React.useRef<HTMLDivElement>(null);
+
+  useScrollReveal(sectionRef, 'up');
+  useHeadingReveal(headingRef);
+  useStaggerReveal(textRef, '.reveal-item');
+
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section ref={sectionRef} className="py-24 bg-white relative overflow-hidden">
       <div className="max-w-[88rem] mx-auto px-6 lg:px-12">
         
         {/* Header Section */}
@@ -104,27 +119,24 @@ export default function ServicesShowcase() {
             viewport={{ once: true }}
             className="flex-shrink-0"
           >
-            <h2 className="font-heading font-black text-5xl lg:text-7xl leading-[1.1] tracking-tight">
-              <span className="text-[#22C55E]">What</span> <span className="text-slate-900">we</span>
+            <h2 ref={headingRef} className="font-heading font-black text-5xl lg:text-7xl leading-[1.1] tracking-tight sweep-text">
+              <span className="text-emerald-500">What</span> <span className="text-slate-900">we</span>
               <br />
-              <span className="text-[#22C55E]">Offer</span>
+              <span className="text-emerald-500">Offer</span>
             </h2>
           </motion.div>
           
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            viewport={{ once: true }}
+          <div 
+            ref={textRef}
             className="max-w-2xl pt-2 lg:pt-4"
           >
-            <h3 className="font-heading font-bold text-3xl lg:text-4xl text-slate-900 mb-6">
+            <h3 className="font-heading font-bold text-3xl lg:text-4xl text-slate-900 mb-6 reveal-item">
               Comprehensive Solar Solutions
             </h3>
-            <p className="text-slate-600 text-lg leading-relaxed">
+            <p className="text-slate-600 text-lg leading-relaxed reveal-item">
               Our services span from precision-engineered residential systems and commercial infrastructure to advanced maintenance protocols, bringing your transition to clean energy seamlessly to life.
             </p>
-          </motion.div>
+          </div>
         </div>
 
         {/* Services Carousel */}
@@ -179,7 +191,7 @@ export default function ServicesShowcase() {
                           {service.desc}
                         </motion.p>
                         <motion.div variants={fadeUp}>
-                          <Link href={`/services/${service.title.toLowerCase().replace(/\s+/g, '-')}`} className="bg-green-600 text-white px-6 md:px-8 py-2.5 md:py-3 rounded-full font-bold hover:bg-green-700 hover:shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2 text-sm md:text-base w-max shadow-md">
+                          <Link href={`/services/${service.slug}`} className="bg-green-600 text-white px-6 md:px-8 py-2.5 md:py-3 rounded-full font-bold hover:bg-green-700 hover:shadow-lg hover:scale-105 transition-all inline-flex items-center gap-2 text-sm md:text-base w-max shadow-md">
                             More Details <ArrowRight size={18} />
                           </Link>
                         </motion.div>
@@ -223,10 +235,7 @@ export default function ServicesShowcase() {
         </div>
 
         {/* View All Services Link */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+        <div 
           className="mt-12 md:mt-16 flex justify-center"
         >
           <Link 
@@ -239,7 +248,7 @@ export default function ServicesShowcase() {
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity z-0" />
           </Link>
-        </motion.div>
+        </div>
 
       </div>
     </section>
